@@ -3,9 +3,9 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.0.7
- * Author: Your Name
- * Author URI: https://github.com/HammadShahzad/Iburger-passport
+ * Version: 1.0.8
+ * Author: Hammad Shahzad
+ * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
  * Requires at least: 5.8
  * Tested up to: 6.4
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.0.7');
+define('IBURGER_PASSPORT_VERSION', '1.0.8');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
