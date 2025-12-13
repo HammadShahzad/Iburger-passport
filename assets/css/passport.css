@@ -372,7 +372,7 @@
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-size: 2.4rem;
     font-weight: 700;
-    color: #F5E6C8;
+    color: #C9A227 !important;
     letter-spacing: 5px;
     text-transform: uppercase;
     margin: 0 0 16px 0;
@@ -384,10 +384,11 @@
     font-family: 'Outfit', sans-serif;
     font-size: 1rem;
     font-weight: 400;
-    color: #E8DFC5;
+    color: #FFFFFF !important;
     margin: 0 0 40px 0;
     letter-spacing: 1px;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    opacity: 0.85;
 }
 
 .passport-decoration {
