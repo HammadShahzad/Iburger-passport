@@ -1,0 +1,1667 @@
+/* ============================================
+   iBurger Passport Loyalty - Premium UI
+   A stunning, modern passport experience
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+    /* Brand Colors - International Burgers */
+    --passport-primary: #006400;     /* Brand Green */
+    --passport-primary-dark: #004d00;
+    --passport-accent: #C9A227;      /* Gold for Passport elements */
+    --passport-bg: #F5F7F5;          /* Light clean background */
+    --passport-text: #1a1a1a;
+    
+    /* Passport Book Colors */
+    --passport-cover: #004d00;       /* Dark Green Cover */
+    --passport-cover-gradient: linear-gradient(160deg, #006400 0%, #004d00 100%);
+    
+    --passport-paper: #FFFEF9;
+    --shadow-sm: 0 2px 8px rgba(0, 100, 0, 0.08);
+    --shadow-md: 0 8px 30px rgba(0, 100, 0, 0.12);
+    --shadow-lg: 0 20px 60px rgba(0, 50, 0, 0.15);
+    --shadow-glow: 0 0 30px rgba(0, 100, 0, 0.2);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* ============================================
+   Main Wrapper
+   ============================================ */
+.iburger-passport-wrapper {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    background: var(--passport-bg);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ambient background elements */
+.iburger-passport-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(0, 100, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(201, 162, 39, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    animation: ambientFloat 20s ease-in-out infinite;
+}
+
+@keyframes ambientFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(2%, 1%) rotate(1deg); }
+    66% { transform: translate(-1%, 2%) rotate(-1deg); }
+}
+
+/* ============================================
+   Progress Section - Clean Card
+   ============================================ */
+.iburger-progress-section {
+    position: relative;
+    z-index: 10;
+    background: white;
+    border: 1px solid rgba(0, 100, 0, 0.1);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 48px;
+    box-shadow: var(--shadow-sm);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.progress-label {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--passport-primary);
+    letter-spacing: 0.5px;
+}
+
+.progress-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--passport-primary);
+    background: rgba(0, 100, 0, 0.05);
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: 1px solid rgba(0, 100, 0, 0.1);
+}
+
+.progress-track {
+    position: relative;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--passport-primary), var(--passport-accent));
+    border-radius: 100px;
+    transition: width 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+    animation: shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+.progress-markers {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+
+.marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.marker-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.4s ease;
+    color: #999;
+}
+
+.marker.collected .marker-dot {
+    background: var(--passport-primary);
+    border-color: var(--passport-primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 100, 0, 0.2);
+    transform: scale(1.1);
+}
+
+.marker-label {
+    font-size: 0.7rem;
+    color: #999;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.marker.collected .marker-label {
+    color: var(--passport-primary);
+    font-weight: 700;
+}
+
+/* Reward Available Banner */
+.reward-available {
+    margin-top: 28px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid rgba(0, 100, 0, 0.1);
+    animation: rewardPulse 3s ease-in-out infinite;
+}
+
+@keyframes rewardPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 100, 0, 0.1); }
+    50% { box-shadow: 0 0 20px 5px rgba(0, 100, 0, 0.05); }
+}
+
+.reward-icon {
+    font-size: 3rem;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-8px) rotate(5deg); }
+}
+
+.reward-text {
+    flex: 1;
+    min-width: 200px;
+}
+
+.reward-text h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--passport-primary);
+    margin: 0 0 4px 0;
+}
+
+.reward-text p {
+    font-size: 0.9rem;
+    color: var(--passport-primary-dark);
+    margin: 0;
+    opacity: 0.8;
+}
+
+.claim-reward-btn {
+    background: var(--passport-primary);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 100px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 15px rgba(0, 100, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.claim-reward-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 100, 0, 0.4);
+    background: var(--passport-primary-dark);
+}
+
+/* ============================================
+   Passport Container
+   ============================================ */
+.passport-container {
+    position: relative;
+    z-index: 10;
+    perspective: 2500px;
+    margin-bottom: 48px;
+}
+
+.passport-book {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 580px;
+}
+
+/* ============================================
+   Passport Pages
+   ============================================ */
+.passport-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 580px;
+    opacity: 0;
+    transform: translateX(30px) scale(0.98);
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    pointer-events: none;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.passport-page.active {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+    z-index: 10;
+}
+
+.passport-page.flip-out-left {
+    opacity: 0;
+    transform: translateX(-50px) scale(0.95) rotateY(-10deg);
+}
+
+.passport-page.flip-out-right {
+    opacity: 0;
+    transform: translateX(50px) scale(0.95) rotateY(10deg);
+}
+
+/* ============================================
+   Front Cover - Premium Green
+   ============================================ */
+.front-cover {
+    background: var(--passport-cover-gradient);
+    cursor: pointer;
+    box-shadow: var(--shadow-lg), 
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                inset 0 -1px 0 rgba(0,0,0,0.3);
+    border: 1px solid rgba(0, 100, 0, 0.3);
+}
+
+.front-cover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at 30% 0%, rgba(201, 162, 39, 0.1) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0L60 40L100 50L60 60L50 100L40 60L0 50L40 40Z' fill='%23C9A227' fill-opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+.cover-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 580px;
+    padding: 48px 40px;
+    text-align: center;
+}
+
+.passport-emblem {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, var(--passport-accent), #B8860B);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    margin-bottom: 32px;
+    box-shadow: 0 8px 32px rgba(201, 162, 39, 0.4),
+                inset 0 2px 4px rgba(255,255,255,0.3),
+                inset 0 -2px 4px rgba(0,0,0,0.2);
+    animation: emblemFloat 4s ease-in-out infinite;
+    color: var(--passport-primary-dark);
+}
+
+@keyframes emblemFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.passport-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--passport-accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 0 0 12px 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.passport-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 40px 0;
+    letter-spacing: 2px;
+}
+
+.passport-decoration {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--passport-accent);
+    opacity: 0.6;
+    margin-bottom: 40px;
+}
+
+.passport-decoration span {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.passport-decoration span:nth-child(2) {
+    width: 40px;
+    height: 2px;
+    border-radius: 2px;
+}
+
+.holder-info {
+    padding: 24px;
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 280px;
+}
+
+.holder-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.holder-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--passport-paper);
+    word-break: break-all;
+    line-height: 1.2;
+}
+
+.open-passport-hint {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+.front-cover:hover .open-passport-hint {
+    color: var(--passport-accent);
+}
+
+.open-passport-hint .arrow {
+    display: inline-block;
+    animation: pointRight 1.5s ease-in-out infinite;
+}
+
+@keyframes pointRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(6px); }
+}
+
+.front-cover:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+/* ============================================
+   Info Page - Personal Details
+   ============================================ */
+.info-page {
+    background: linear-gradient(180deg, var(--passport-paper) 0%, #F5F3EE 100%);
+    box-shadow: var(--shadow-lg);
+}
+
+.info-page .page-content {
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 580px;
+}
+
+.passport-photo {
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 4px solid var(--passport-primary);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.passport-photo::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.passport-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.holder-details {
+    width: 100%;
+    max-width: 320px;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #888;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-family: 'Space Mono', monospace;
+    font-weight: 500;
+    color: var(--passport-text);
+    font-size: 0.9rem;
+    word-break: break-all;
+    text-align: right;
+    max-width: 60%;
+}
+
+.passport-stamp-decorative {
+    margin-top: auto;
+    padding-top: 32px;
+}
+
+.stamp-circle {
+    width: 100px;
+    height: 100px;
+    border: 3px solid var(--passport-primary);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-12deg);
+    opacity: 0.15;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--passport-primary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ============================================
+   Stamps Pages
+   ============================================ */
+.stamps-page {
+    background: linear-gradient(180deg, var(--passport-paper) 0%, #F8F6F1 100%);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+}
+
+.stamps-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 30%),
+        radial-gradient(circle at 80% 20%, rgba(232, 93, 4, 0.03) 0%, transparent 30%);
+    pointer-events: none;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 28px;
+    background: var(--passport-primary);
+    color: white;
+}
+
+.page-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.stamps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 24px;
+    padding: 28px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-watermark {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    font-size: 5rem;
+    opacity: 0.04;
+    pointer-events: none;
+}
+
+/* ============================================
+   Stamp Slots - Modern Cards
+   ============================================ */
+.stamp-slot {
+    min-height: 180px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+.stamp-slot.empty {
+    background: rgba(0, 0, 0, 0.02);
+    border: 2px dashed rgba(0, 0, 0, 0.1);
+}
+
+.stamp-slot.empty:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.empty-slot {
+    text-align: center;
+    padding: 24px;
+}
+
+.empty-flag {
+    font-size: 3rem;
+    display: block;
+    opacity: 0.2;
+    margin-bottom: 12px;
+    filter: grayscale(100%);
+}
+
+.empty-name {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #999;
+    margin-bottom: 6px;
+}
+
+.empty-hint {
+    display: block;
+    font-size: 0.7rem;
+    color: #bbb;
+}
+
+/* Collected Stamps */
+.stamp-slot.has-stamp {
+    background: white;
+    box-shadow: var(--shadow-md);
+    border: none;
+}
+
+.stamp-slot.has-stamp:hover {
+    transform: translateY(-4px) rotate(-1deg);
+    box-shadow: var(--shadow-lg);
+}
+
+.visa-stamp {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+.visa-stamp.animated {
+    animation: stampSlam 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes stampSlam {
+    0% {
+        transform: scale(2.5) rotate(-20deg);
+        opacity: 0;
+    }
+    40% {
+        transform: scale(0.9) rotate(3deg);
+        opacity: 1;
+    }
+    60% {
+        transform: scale(1.05) rotate(-2deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.custom-stamp {
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(2px 3px 6px rgba(0,0,0,0.2));
+}
+
+.default-stamp {
+    position: relative;
+}
+
+.stamp-border {
+    width: 140px;
+    margin: 0 auto;
+    padding: 16px;
+    border: 4px solid var(--passport-ember);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(232, 93, 4, 0.08) 0%, rgba(232, 93, 4, 0.02) 100%);
+    transform: rotate(-3deg);
+    transition: transform 0.3s ease;
+}
+
+.stamp-slot:hover .stamp-border {
+    transform: rotate(0deg);
+}
+
+/* Different stamp colors */
+.stamp-slot:nth-child(3n+1) .stamp-border {
+    border-color: var(--passport-ocean);
+    background: linear-gradient(135deg, rgba(29, 53, 87, 0.08) 0%, rgba(29, 53, 87, 0.02) 100%);
+}
+.stamp-slot:nth-child(3n+1) .stamp-inner { color: var(--passport-ocean); }
+
+.stamp-slot:nth-child(3n+2) .stamp-border {
+    border-color: var(--passport-forest);
+    background: linear-gradient(135deg, rgba(45, 106, 79, 0.08) 0%, rgba(45, 106, 79, 0.02) 100%);
+}
+.stamp-slot:nth-child(3n+2) .stamp-inner { color: var(--passport-forest); }
+
+.stamp-slot:nth-child(3n) .stamp-border {
+    border-color: var(--passport-plum);
+    background: linear-gradient(135deg, rgba(123, 45, 142, 0.08) 0%, rgba(123, 45, 142, 0.02) 100%);
+}
+.stamp-slot:nth-child(3n) .stamp-inner { color: var(--passport-plum); }
+
+.stamp-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--passport-ember);
+}
+
+.stamp-flag {
+    font-size: 2rem;
+}
+
+.stamp-country {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stamp-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    opacity: 0.7;
+}
+
+.stamp-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    opacity: 0.6;
+}
+
+.stamp-approved {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-top: 6px;
+    padding: 3px 10px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+.visit-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--passport-gold);
+    color: var(--passport-navy);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   Rewards Page
+   ============================================ */
+.rewards-page {
+    background: linear-gradient(135deg, #FFFBEB 0%, var(--passport-paper) 100%);
+    box-shadow: var(--shadow-lg);
+}
+
+.rewards-content {
+    padding: 32px;
+    text-align: center;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+}
+
+.rewards-content h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    color: var(--passport-navy);
+    margin: 0 0 24px 0;
+}
+
+.coupons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.coupon-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: white;
+    padding: 20px 24px;
+    border-radius: 16px;
+    border: 2px dashed var(--passport-gold);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+.coupon-card:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+}
+
+.coupon-icon {
+    font-size: 2.2rem;
+}
+
+.coupon-details {
+    flex: 1;
+    text-align: left;
+}
+
+.coupon-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--passport-navy);
+    letter-spacing: 1px;
+}
+
+.coupon-expires {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+.copy-coupon {
+    background: var(--passport-navy);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-coupon:hover {
+    background: var(--passport-midnight);
+    transform: scale(1.05);
+}
+
+.no-rewards-yet {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.reward-lock {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.no-rewards-yet > p {
+    color: #666;
+    margin: 0 0 32px 0;
+    max-width: 280px;
+    line-height: 1.6;
+}
+
+.reward-preview {
+    background: white;
+    padding: 28px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    border: 2px dashed rgba(212, 175, 55, 0.4);
+}
+
+.preview-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--passport-gold);
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.preview-product {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.preview-product img {
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    max-width: 100px;
+}
+
+.preview-name {
+    font-weight: 600;
+    color: var(--passport-navy);
+}
+
+.preview-free {
+    background: linear-gradient(135deg, var(--passport-gold), var(--passport-ember));
+    color: white;
+    padding: 6px 20px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+/* ============================================
+   Back Cover
+   ============================================ */
+.back-cover {
+    background: var(--passport-cover-gradient);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(0, 100, 0, 0.3);
+}
+
+.back-cover .cover-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 580px;
+    padding: 48px;
+}
+
+.back-stamp {
+    width: 140px;
+    height: 140px;
+    border: 3px solid rgba(201, 162, 39, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.circular-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 1px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 20px;
+}
+
+.thank-you {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 280px;
+    line-height: 1.6;
+}
+
+/* ============================================
+   Page Navigation
+   ============================================ */
+.passport-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--passport-primary);
+    padding: 14px 28px;
+    border-radius: 100px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.nav-btn:hover:not(:disabled) {
+    background: var(--passport-primary);
+    color: white;
+    border-color: var(--passport-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 100, 0, 0.2);
+}
+
+.nav-btn:disabled {
+    opacity: 0.5;
+    background: #f0f0f0;
+    cursor: not-allowed;
+    color: #999;
+    box-shadow: none;
+}
+
+.nav-arrow {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.nav-btn:hover:not(:disabled) .prev-btn .nav-arrow {
+    transform: translateX(-4px);
+}
+
+.nav-btn:hover:not(:disabled).next-btn .nav-arrow {
+    transform: translateX(4px);
+}
+
+.page-indicator {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    color: #888;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 100px;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* ============================================
+   Add Order Section
+   ============================================ */
+.add-order-section {
+    position: relative;
+    z-index: 10;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    padding: 36px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.add-order-section h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    color: var(--passport-primary);
+    margin: 0 0 8px 0;
+}
+
+.add-order-section > p {
+    color: #666;
+    margin: 0 0 28px 0;
+    font-size: 0.95rem;
+}
+
+.add-order-form .form-group {
+    display: flex;
+    gap: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.add-order-form input[type="text"] {
+    flex: 1;
+    padding: 16px 24px;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    color: var(--passport-text);
+    transition: all 0.3s ease;
+}
+
+.add-order-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--passport-primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.1);
+}
+
+.add-order-form input[type="text"]::placeholder {
+    color: #bbb;
+    font-family: 'Outfit', sans-serif;
+}
+
+.submit-btn {
+    background: var(--passport-primary);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    min-width: 180px;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 100, 0, 0.3);
+    background: var(--passport-primary-dark);
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.submit-btn .btn-loading {
+    display: none;
+}
+
+.submit-btn.loading .btn-text {
+    display: none;
+}
+
+.submit-btn.loading .btn-loading {
+    display: inline-block;
+}
+
+.order-message {
+    margin-top: 20px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.order-message.show {
+    display: block;
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.order-message.success {
+    background: rgba(45, 106, 79, 0.2);
+    color: #7DD3A8;
+    border: 1px solid rgba(45, 106, 79, 0.3);
+}
+
+.order-message.error {
+    background: rgba(220, 47, 2, 0.2);
+    color: #FF9B85;
+    border: 1px solid rgba(220, 47, 2, 0.3);
+}
+
+/* ============================================
+   Reward Modal - Premium Overlay
+   ============================================ */
+.reward-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 27, 42, 0.95);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.reward-modal.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: linear-gradient(180deg, #FFFBEB 0%, white 100%);
+    border-radius: 32px;
+    padding: 56px 48px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+    animation: modalPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.1) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    font-size: 1.8rem;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: var(--passport-navy);
+    transform: rotate(90deg);
+}
+
+.reward-celebration {
+    position: relative;
+    z-index: 1;
+}
+
+.reward-icon-large {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    display: block;
+    animation: celebrateBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes celebrateBounce {
+    0% { transform: scale(0) rotate(-180deg); }
+    50% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.reward-celebration h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--passport-navy);
+    margin: 0 0 12px 0;
+}
+
+.reward-message {
+    color: #666;
+    margin: 0 0 32px 0;
+    line-height: 1.6;
+}
+
+.reward-coupon-display {
+    background: white;
+    border: 3px dashed var(--passport-gold);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.coupon-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.coupon-code-display {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--passport-navy);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+}
+
+.copy-coupon-btn {
+    background: var(--passport-navy);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-coupon-btn:hover {
+    background: var(--passport-midnight);
+    transform: scale(1.05);
+}
+
+.reward-expires {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 28px;
+}
+
+.shop-now-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--passport-gold), #B8860B);
+    color: var(--passport-navy);
+    text-decoration: none;
+    padding: 16px 40px;
+    border-radius: 100px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.shop-now-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+    color: var(--passport-navy);
+}
+
+/* ============================================
+   Stamp Animation Overlay
+   ============================================ */
+.stamp-animation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 27, 42, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+}
+
+.stamp-animation-overlay.show {
+    display: flex;
+}
+
+.stamp-animation {
+    position: relative;
+}
+
+.stamp-thud {
+    animation: megaStamp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes megaStamp {
+    0% {
+        transform: scale(4) rotate(-30deg);
+        opacity: 0;
+    }
+    30% {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(0.95) rotate(-3deg);
+    }
+    70% {
+        transform: scale(1.02) rotate(1deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.new-stamp-content {
+    background: white;
+    padding: 48px 56px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.new-stamp-content .stamp-flag {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.new-stamp-content .stamp-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--passport-navy);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.new-stamp-content .stamp-message {
+    font-size: 1rem;
+    color: var(--passport-forest);
+    font-weight: 500;
+}
+
+/* ============================================
+   Login Notice
+   ============================================ */
+.iburger-login-notice {
+    text-align: center;
+    padding: 80px 40px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 32px;
+    max-width: 420px;
+    margin: 60px auto;
+    box-shadow: var(--shadow-md);
+}
+
+.iburger-login-notice p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0 0 32px 0;
+    line-height: 1.6;
+}
+
+.iburger-login-notice .button {
+    display: inline-block;
+    background: var(--passport-primary);
+    color: white;
+    text-decoration: none;
+    padding: 16px 40px;
+    border-radius: 100px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.iburger-login-notice .button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 100, 0, 0.3);
+    background: var(--passport-primary-dark);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 768px) {
+    .iburger-passport-wrapper {
+        padding: 24px 16px;
+    }
+
+    .iburger-progress-section {
+        padding: 24px 20px;
+        border-radius: 20px;
+    }
+
+    .progress-label {
+        font-size: 1.2rem;
+    }
+
+    .progress-markers {
+        display: none;
+    }
+
+    .reward-available {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .passport-book {
+        min-height: 520px;
+    }
+
+    .passport-page {
+        min-height: 520px;
+    }
+
+    .cover-content {
+        min-height: 520px;
+        padding: 36px 24px;
+    }
+
+    .passport-title {
+        font-size: 1.6rem;
+        letter-spacing: 2px;
+    }
+
+    .passport-emblem {
+        width: 100px;
+        height: 100px;
+        font-size: 2.8rem;
+    }
+
+    .stamps-grid {
+        grid-template-columns: 1fr;
+        padding: 20px;
+        gap: 16px;
+    }
+
+    .stamp-slot {
+        min-height: 160px;
+    }
+
+    .passport-nav {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .nav-btn {
+        padding: 12px 20px;
+        font-size: 0.85rem;
+    }
+
+    .nav-text {
+        display: none;
+    }
+
+    .add-order-section {
+        padding: 28px 20px;
+    }
+
+    .add-order-form .form-group {
+        flex-direction: column;
+    }
+
+    .submit-btn {
+        width: 100%;
+    }
+
+    .modal-content {
+        padding: 40px 28px;
+        margin: 16px;
+        border-radius: 24px;
+    }
+
+    .coupon-code-display {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .passport-title {
+        font-size: 1.4rem;
+    }
+
+    .passport-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .holder-name {
+        font-size: 1.2rem;
+    }
+
+    .info-page .page-content {
+        padding: 32px 24px;
+    }
+
+    .passport-photo {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+/* ============================================
+   Confetti Particles
+   ============================================ */
+.confetti-piece {
+    pointer-events: none;
+    z-index: 100;
+}
+
+@keyframes confetti-fall-0 {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(400px) translateX(80px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes confetti-fall-1 {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(400px) translateX(-60px) rotate(-720deg); opacity: 0; }
+}
+
+@keyframes confetti-fall-2 {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(400px) translateX(30px) rotate(540deg); opacity: 0; }
+}

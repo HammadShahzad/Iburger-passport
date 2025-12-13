@@ -1,0 +1,660 @@
+<?php
+/**
+ * Plugin Name: iBurger Passport Loyalty
+ * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
+ * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
+ * Version: 1.0.5
+ * Author: Your Name
+ * Author URI: https://github.com/HammadShahzad/Iburger-passport
+ * Text Domain: iburger-passport
+ * Requires at least: 5.8
+ * Requires PHP: 7.4
+ * WC requires at least: 5.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Define plugin constants
+define('IBURGER_PASSPORT_VERSION', '1.0.5');
+define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
+define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
+
+/**
+ * Main Plugin Class
+ */
+class IBurger_Passport_Loyalty {
+    
+    private static $instance = null;
+    
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __construct() {
+        $this->init_hooks();
+    }
+    
+    private function init_hooks() {
+        // Initialize GitHub Updater
+        add_action('init', array($this, 'init_updater'));
+
+        // Check WooCommerce dependency
+        add_action('plugins_loaded', array($this, 'check_woocommerce'));
+        
+        // Initialize plugin
+        add_action('init', array($this, 'init'));
+        
+        // Ensure endpoint is installed
+        add_action('admin_init', array($this, 'install_endpoint'));
+        
+        // Enqueue scripts and styles
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+        
+        // Admin menu
+        add_action('admin_menu', array($this, 'add_admin_menu'));
+        
+        // AJAX handlers
+        add_action('wp_ajax_iburger_verify_order', array($this, 'ajax_verify_order'));
+        add_action('wp_ajax_iburger_claim_reward', array($this, 'ajax_claim_reward'));
+        
+        // WooCommerce hooks
+        add_action('woocommerce_order_status_completed', array($this, 'process_completed_order'));
+        add_action('woocommerce_account_menu_items', array($this, 'add_passport_menu_item'));
+        add_filter('woocommerce_get_query_vars', array($this, 'add_passport_query_vars'));
+        add_action('init', array($this, 'add_passport_endpoint'), 0);
+        add_action('woocommerce_account_burger-passport_endpoint', array($this, 'passport_endpoint_content'));
+        
+        // Shortcode
+        add_shortcode('iburger_passport', array($this, 'passport_shortcode'));
+        
+        // Register custom post type for burger countries
+        add_action('init', array($this, 'register_burger_countries_cpt'));
+        
+        // Add meta boxes
+        add_action('add_meta_boxes', array($this, 'add_burger_country_meta_boxes'));
+        add_action('save_post', array($this, 'save_burger_country_meta'));
+    }
+    
+    public function init_updater() {
+        if (!class_exists('IBurger_Passport_Updater')) {
+            require_once IBURGER_PASSPORT_PATH . 'includes/class-github-updater.php';
+        }
+        
+        new IBurger_Passport_Updater(
+            __FILE__,
+            'HammadShahzad',
+            'Iburger-passport'
+        );
+    }
+
+    public function check_woocommerce() {
+        if (!class_exists('WooCommerce')) {
+            add_action('admin_notices', function() {
+                echo '<div class="error"><p>' . __('iBurger Passport Loyalty requires WooCommerce to be installed and active.', 'iburger-passport') . '</p></div>';
+            });
+        }
+    }
+    
+    public function init() {
+        load_plugin_textdomain('iburger-passport', false, dirname(plugin_basename(__FILE__)) . '/languages');
+        
+        // Check if we need to flush rewrite rules
+        if (get_option('iburger_passport_flush_rewrite') === 'yes') {
+            flush_rewrite_rules();
+            delete_option('iburger_passport_flush_rewrite');
+        }
+    }
+    
+    public function install_endpoint() {
+        // Check if endpoint needs to be installed
+        $installed_version = get_option('iburger_passport_endpoint_version', '0');
+        
+        if (version_compare($installed_version, IBURGER_PASSPORT_VERSION, '<')) {
+            // Register endpoint
+            add_rewrite_endpoint('burger-passport', EP_ROOT | EP_PAGES);
+            
+            // Flush rewrite rules
+            flush_rewrite_rules();
+            
+            // Update version
+            update_option('iburger_passport_endpoint_version', IBURGER_PASSPORT_VERSION);
+        }
+    }
+    
+    public function register_burger_countries_cpt() {
+        $labels = array(
+            'name'               => __('Burger Countries', 'iburger-passport'),
+            'singular_name'      => __('Burger Country', 'iburger-passport'),
+            'menu_name'          => __('Burger Countries', 'iburger-passport'),
+            'add_new'            => __('Add New Country', 'iburger-passport'),
+            'add_new_item'       => __('Add New Burger Country', 'iburger-passport'),
+            'edit_item'          => __('Edit Burger Country', 'iburger-passport'),
+            'new_item'           => __('New Burger Country', 'iburger-passport'),
+            'view_item'          => __('View Burger Country', 'iburger-passport'),
+            'search_items'       => __('Search Burger Countries', 'iburger-passport'),
+        );
+        
+        $args = array(
+            'labels'             => $labels,
+            'public'             => false,
+            'show_ui'            => true,
+            'show_in_menu'       => 'iburger-passport',
+            'capability_type'    => 'post',
+            'supports'           => array('title', 'thumbnail'),
+            'menu_icon'          => 'dashicons-location-alt',
+        );
+        
+        register_post_type('burger_country', $args);
+    }
+    
+    public function add_burger_country_meta_boxes() {
+        add_meta_box(
+            'burger_country_details',
+            __('Country Details', 'iburger-passport'),
+            array($this, 'render_burger_country_meta_box'),
+            'burger_country',
+            'normal',
+            'high'
+        );
+    }
+    
+    public function render_burger_country_meta_box($post) {
+        wp_nonce_field('burger_country_meta', 'burger_country_nonce');
+        
+        $country_code = get_post_meta($post->ID, '_country_code', true);
+        $stamp_image = get_post_meta($post->ID, '_stamp_image', true);
+        $linked_products = get_post_meta($post->ID, '_linked_products', true);
+        $flag_emoji = get_post_meta($post->ID, '_flag_emoji', true);
+        ?>
+        <table class="form-table">
+            <tr>
+                <th><label for="country_code"><?php _e('Country Code', 'iburger-passport'); ?></label></th>
+                <td>
+                    <input type="text" id="country_code" name="country_code" value="<?php echo esc_attr($country_code); ?>" class="regular-text" placeholder="e.g., USA, MEX, ITA">
+                    <p class="description"><?php _e('3-letter country code for the stamp', 'iburger-passport'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="flag_emoji"><?php _e('Flag Emoji', 'iburger-passport'); ?></label></th>
+                <td>
+                    <input type="text" id="flag_emoji" name="flag_emoji" value="<?php echo esc_attr($flag_emoji); ?>" class="regular-text" placeholder="e.g., 🇺🇸, 🇲🇽, 🇮🇹">
+                    <p class="description"><?php _e('Country flag emoji for display', 'iburger-passport'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="stamp_image"><?php _e('Custom Stamp Image', 'iburger-passport'); ?></label></th>
+                <td>
+                    <input type="hidden" id="stamp_image" name="stamp_image" value="<?php echo esc_attr($stamp_image); ?>">
+                    <button type="button" class="button" id="upload_stamp_image"><?php _e('Upload Stamp', 'iburger-passport'); ?></button>
+                    <button type="button" class="button" id="remove_stamp_image" <?php echo empty($stamp_image) ? 'style="display:none;"' : ''; ?>><?php _e('Remove', 'iburger-passport'); ?></button>
+                    <div id="stamp_image_preview" style="margin-top: 10px;">
+                        <?php if ($stamp_image): ?>
+                            <img src="<?php echo esc_url($stamp_image); ?>" style="max-width: 150px; height: auto;">
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="linked_products"><?php _e('Linked Products', 'iburger-passport'); ?></label></th>
+                <td>
+                    <select id="linked_products" name="linked_products[]" multiple class="regular-text" style="height: 150px; width: 100%;">
+                        <?php
+                        $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
+                        $linked = is_array($linked_products) ? $linked_products : array();
+                        foreach ($products as $product) {
+                            $selected = in_array($product->get_id(), $linked) ? 'selected' : '';
+                            echo '<option value="' . esc_attr($product->get_id()) . '" ' . $selected . '>' . esc_html($product->get_name()) . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <p class="description"><?php _e('Select products that will earn this country stamp when purchased', 'iburger-passport'); ?></p>
+                </td>
+            </tr>
+        </table>
+        <?php
+    }
+    
+    public function save_burger_country_meta($post_id) {
+        if (!isset($_POST['burger_country_nonce']) || !wp_verify_nonce($_POST['burger_country_nonce'], 'burger_country_meta')) {
+            return;
+        }
+        
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
+        if (isset($_POST['country_code'])) {
+            update_post_meta($post_id, '_country_code', sanitize_text_field($_POST['country_code']));
+        }
+        
+        if (isset($_POST['flag_emoji'])) {
+            update_post_meta($post_id, '_flag_emoji', sanitize_text_field($_POST['flag_emoji']));
+        }
+        
+        if (isset($_POST['stamp_image'])) {
+            update_post_meta($post_id, '_stamp_image', esc_url_raw($_POST['stamp_image']));
+        }
+        
+        if (isset($_POST['linked_products'])) {
+            update_post_meta($post_id, '_linked_products', array_map('intval', $_POST['linked_products']));
+        } else {
+            delete_post_meta($post_id, '_linked_products');
+        }
+    }
+    
+    public function add_admin_menu() {
+        add_menu_page(
+            __('iBurger Passport', 'iburger-passport'),
+            __('iBurger Passport', 'iburger-passport'),
+            'manage_options',
+            'iburger-passport',
+            array($this, 'render_admin_page'),
+            'dashicons-book-alt',
+            56
+        );
+        
+        add_submenu_page(
+            'iburger-passport',
+            __('Settings', 'iburger-passport'),
+            __('Settings', 'iburger-passport'),
+            'manage_options',
+            'iburger-passport-settings',
+            array($this, 'render_settings_page')
+        );
+        
+        add_submenu_page(
+            'iburger-passport',
+            __('Customer Passports', 'iburger-passport'),
+            __('Customer Passports', 'iburger-passport'),
+            'manage_options',
+            'iburger-passport-customers',
+            array($this, 'render_customers_page')
+        );
+    }
+    
+    public function render_admin_page() {
+        include IBURGER_PASSPORT_PATH . 'includes/admin/dashboard.php';
+    }
+    
+    public function render_settings_page() {
+        include IBURGER_PASSPORT_PATH . 'includes/admin/settings.php';
+    }
+    
+    public function render_customers_page() {
+        include IBURGER_PASSPORT_PATH . 'includes/admin/customers.php';
+    }
+    
+    public function enqueue_frontend_assets() {
+        wp_enqueue_style(
+            'iburger-passport-style',
+            IBURGER_PASSPORT_URL . 'assets/css/passport.css',
+            array(),
+            IBURGER_PASSPORT_VERSION
+        );
+        
+        wp_enqueue_script(
+            'iburger-passport-script',
+            IBURGER_PASSPORT_URL . 'assets/js/passport.js',
+            array('jquery'),
+            IBURGER_PASSPORT_VERSION,
+            true
+        );
+        
+        wp_localize_script('iburger-passport-script', 'iburgerPassport', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('iburger_passport_nonce'),
+            'strings' => array(
+                'verifying' => __('Verifying order...', 'iburger-passport'),
+                'success' => __('Stamp added to your passport!', 'iburger-passport'),
+                'error' => __('Something went wrong. Please try again.', 'iburger-passport'),
+                'alreadyClaimed' => __('This order has already been claimed.', 'iburger-passport'),
+                'invalidOrder' => __('Invalid order number.', 'iburger-passport'),
+            )
+        ));
+    }
+    
+    public function enqueue_admin_assets($hook) {
+        if (strpos($hook, 'iburger-passport') !== false || get_post_type() === 'burger_country') {
+            wp_enqueue_media();
+            wp_enqueue_style(
+                'iburger-passport-admin',
+                IBURGER_PASSPORT_URL . 'assets/css/admin.css',
+                array(),
+                IBURGER_PASSPORT_VERSION
+            );
+            wp_enqueue_script(
+                'iburger-passport-admin',
+                IBURGER_PASSPORT_URL . 'assets/js/admin.js',
+                array('jquery'),
+                IBURGER_PASSPORT_VERSION,
+                true
+            );
+        }
+    }
+    
+    public function add_passport_endpoint() {
+        add_rewrite_endpoint('burger-passport', EP_ROOT | EP_PAGES);
+    }
+    
+    // Add query var for WooCommerce endpoint
+    public function add_passport_query_vars($query_vars) {
+        $query_vars['burger-passport'] = 'burger-passport';
+        return $query_vars;
+    }
+    
+    public function add_passport_menu_item($items) {
+        $new_items = array();
+        foreach ($items as $key => $value) {
+            $new_items[$key] = $value;
+            if ($key === 'orders') {
+                $new_items['burger-passport'] = __('🍔 My Passport', 'iburger-passport');
+            }
+        }
+        return $new_items;
+    }
+    
+    public function passport_endpoint_content() {
+        echo do_shortcode('[iburger_passport]');
+    }
+    
+    public function passport_shortcode($atts) {
+        if (!is_user_logged_in()) {
+            return '<div class="iburger-login-notice">' . 
+                   '<p>' . __('Please log in to view your Burger Passport.', 'iburger-passport') . '</p>' .
+                   '<a href="' . esc_url(wc_get_page_permalink('myaccount')) . '" class="button">' . __('Log In', 'iburger-passport') . '</a>' .
+                   '</div>';
+        }
+        
+        ob_start();
+        include IBURGER_PASSPORT_PATH . 'includes/templates/passport.php';
+        return ob_get_clean();
+    }
+    
+    public function process_completed_order($order_id) {
+        $order = wc_get_order($order_id);
+        if (!$order) return;
+        
+        $user_id = $order->get_user_id();
+        if (!$user_id) return;
+        
+        // Check if order already processed
+        if (get_post_meta($order_id, '_iburger_stamps_processed', true)) {
+            return;
+        }
+        
+        $stamps_added = array();
+        
+        foreach ($order->get_items() as $item) {
+            $product_id = $item->get_product_id();
+            
+            // Find burger country for this product
+            $burger_countries = get_posts(array(
+                'post_type' => 'burger_country',
+                'posts_per_page' => -1,
+                'post_status' => 'publish'
+            ));
+            
+            foreach ($burger_countries as $country) {
+                $linked_products = get_post_meta($country->ID, '_linked_products', true);
+                if (is_array($linked_products) && in_array($product_id, $linked_products)) {
+                    $stamps_added[] = $country->ID;
+                }
+            }
+        }
+        
+        if (!empty($stamps_added)) {
+            $this->add_stamps_to_user($user_id, array_unique($stamps_added), $order_id);
+            update_post_meta($order_id, '_iburger_stamps_processed', true);
+        }
+    }
+    
+    public function add_stamps_to_user($user_id, $country_ids, $order_id) {
+        $user_stamps = get_user_meta($user_id, '_iburger_stamps', true);
+        if (!is_array($user_stamps)) {
+            $user_stamps = array();
+        }
+        
+        foreach ($country_ids as $country_id) {
+            $stamp_data = array(
+                'country_id' => $country_id,
+                'order_id' => $order_id,
+                'date' => current_time('mysql'),
+            );
+            $user_stamps[] = $stamp_data;
+        }
+        
+        update_user_meta($user_id, '_iburger_stamps', $user_stamps);
+        
+        // Check if user qualifies for reward
+        $this->check_reward_eligibility($user_id);
+    }
+    
+    public function check_reward_eligibility($user_id) {
+        $user_stamps = get_user_meta($user_id, '_iburger_stamps', true);
+        if (!is_array($user_stamps)) return;
+        
+        // Get unique countries
+        $unique_countries = array_unique(array_column($user_stamps, 'country_id'));
+        $stamps_required = get_option('iburger_stamps_required', 6);
+        
+        if (count($unique_countries) >= $stamps_required) {
+            // Check if reward already claimed for this batch
+            $rewards_claimed = get_user_meta($user_id, '_iburger_rewards_claimed', true);
+            if (!is_array($rewards_claimed)) {
+                $rewards_claimed = array();
+            }
+            
+            $batch_number = floor(count($unique_countries) / $stamps_required);
+            
+            if (!in_array($batch_number, $rewards_claimed)) {
+                // Mark as eligible for reward
+                update_user_meta($user_id, '_iburger_reward_pending', true);
+                update_user_meta($user_id, '_iburger_pending_batch', $batch_number);
+            }
+        }
+    }
+    
+    public function ajax_verify_order() {
+        check_ajax_referer('iburger_passport_nonce', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(array('message' => __('Please log in first.', 'iburger-passport')));
+        }
+        
+        $order_id = isset($_POST['order_id']) ? intval($_POST['order_id']) : 0;
+        $user_id = get_current_user_id();
+        
+        if (!$order_id) {
+            wp_send_json_error(array('message' => __('Invalid order number.', 'iburger-passport')));
+        }
+        
+        $order = wc_get_order($order_id);
+        
+        if (!$order) {
+            wp_send_json_error(array('message' => __('Order not found.', 'iburger-passport')));
+        }
+        
+        // Check if order belongs to user OR allow claiming by email
+        $order_user_id = $order->get_user_id();
+        $order_email = $order->get_billing_email();
+        $current_user = wp_get_current_user();
+        
+        if ($order_user_id !== $user_id && $order_email !== $current_user->user_email) {
+            wp_send_json_error(array('message' => __('This order does not belong to your account.', 'iburger-passport')));
+        }
+        
+        // Check if order is completed
+        if ($order->get_status() !== 'completed') {
+            wp_send_json_error(array('message' => __('Order must be completed to claim stamps.', 'iburger-passport')));
+        }
+        
+        // Check if already claimed
+        $claimed_orders = get_user_meta($user_id, '_iburger_claimed_orders', true);
+        if (!is_array($claimed_orders)) {
+            $claimed_orders = array();
+        }
+        
+        if (in_array($order_id, $claimed_orders)) {
+            wp_send_json_error(array('message' => __('This order has already been claimed.', 'iburger-passport')));
+        }
+        
+        // Process stamps
+        $stamps_added = array();
+        
+        foreach ($order->get_items() as $item) {
+            $product_id = $item->get_product_id();
+            
+            $burger_countries = get_posts(array(
+                'post_type' => 'burger_country',
+                'posts_per_page' => -1,
+                'post_status' => 'publish'
+            ));
+            
+            foreach ($burger_countries as $country) {
+                $linked_products = get_post_meta($country->ID, '_linked_products', true);
+                if (is_array($linked_products) && in_array($product_id, $linked_products)) {
+                    $stamps_added[] = array(
+                        'id' => $country->ID,
+                        'name' => $country->post_title,
+                        'code' => get_post_meta($country->ID, '_country_code', true),
+                        'flag' => get_post_meta($country->ID, '_flag_emoji', true),
+                    );
+                }
+            }
+        }
+        
+        if (empty($stamps_added)) {
+            wp_send_json_error(array('message' => __('No burger stamps found in this order.', 'iburger-passport')));
+        }
+        
+        // Add stamps
+        $this->add_stamps_to_user($user_id, array_column($stamps_added, 'id'), $order_id);
+        
+        // Mark order as claimed
+        $claimed_orders[] = $order_id;
+        update_user_meta($user_id, '_iburger_claimed_orders', $claimed_orders);
+        
+        wp_send_json_success(array(
+            'message' => __('Stamps added successfully!', 'iburger-passport'),
+            'stamps' => $stamps_added
+        ));
+    }
+    
+    public function ajax_claim_reward() {
+        check_ajax_referer('iburger_passport_nonce', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(array('message' => __('Please log in first.', 'iburger-passport')));
+        }
+        
+        $user_id = get_current_user_id();
+        
+        // Check if eligible
+        if (!get_user_meta($user_id, '_iburger_reward_pending', true)) {
+            wp_send_json_error(array('message' => __('No reward available to claim.', 'iburger-passport')));
+        }
+        
+        // Create coupon for free product
+        $reward_product_id = get_option('iburger_reward_product', 0);
+        
+        if (!$reward_product_id) {
+            wp_send_json_error(array('message' => __('Reward not configured. Please contact support.', 'iburger-passport')));
+        }
+        
+        $coupon_code = 'IBURGER-' . strtoupper(wp_generate_password(8, false));
+        
+        $coupon = new WC_Coupon();
+        $coupon->set_code($coupon_code);
+        $coupon->set_discount_type('percent');
+        $coupon->set_amount(100);
+        $coupon->set_product_ids(array($reward_product_id));
+        $coupon->set_usage_limit(1);
+        $coupon->set_usage_limit_per_user(1);
+        $coupon->set_individual_use(false);
+        $coupon->set_email_restrictions(array(wp_get_current_user()->user_email));
+        $coupon->set_date_expires(strtotime('+30 days'));
+        $coupon->save();
+        
+        // Mark reward as claimed
+        $batch_number = get_user_meta($user_id, '_iburger_pending_batch', true);
+        $rewards_claimed = get_user_meta($user_id, '_iburger_rewards_claimed', true);
+        if (!is_array($rewards_claimed)) {
+            $rewards_claimed = array();
+        }
+        $rewards_claimed[] = $batch_number;
+        update_user_meta($user_id, '_iburger_rewards_claimed', $rewards_claimed);
+        delete_user_meta($user_id, '_iburger_reward_pending');
+        delete_user_meta($user_id, '_iburger_pending_batch');
+        
+        // Store coupon for user
+        $user_coupons = get_user_meta($user_id, '_iburger_reward_coupons', true);
+        if (!is_array($user_coupons)) {
+            $user_coupons = array();
+        }
+        $user_coupons[] = array(
+            'code' => $coupon_code,
+            'date' => current_time('mysql'),
+            'expires' => date('Y-m-d', strtotime('+30 days')),
+        );
+        update_user_meta($user_id, '_iburger_reward_coupons', $user_coupons);
+        
+        $product = wc_get_product($reward_product_id);
+        
+        wp_send_json_success(array(
+            'message' => __('Congratulations! Your reward has been unlocked!', 'iburger-passport'),
+            'coupon' => $coupon_code,
+            'product_name' => $product ? $product->get_name() : __('Free Product', 'iburger-passport'),
+            'expires' => date('F j, Y', strtotime('+30 days')),
+        ));
+    }
+    
+    public static function get_user_stamps($user_id = null) {
+        if (!$user_id) {
+            $user_id = get_current_user_id();
+        }
+        
+        $stamps = get_user_meta($user_id, '_iburger_stamps', true);
+        return is_array($stamps) ? $stamps : array();
+    }
+    
+    public static function get_unique_country_count($user_id = null) {
+        $stamps = self::get_user_stamps($user_id);
+        return count(array_unique(array_column($stamps, 'country_id')));
+    }
+}
+
+// Activation hook
+register_activation_hook(__FILE__, function() {
+    // Add default options
+    add_option('iburger_stamps_required', 6);
+    add_option('iburger_reward_product', 0);
+    add_option('iburger_passport_title', 'Burger World Passport');
+    
+    // Register the endpoint first
+    add_rewrite_endpoint('burger-passport', EP_ROOT | EP_PAGES);
+    
+    // Flush rewrite rules
+    flush_rewrite_rules();
+    
+    // Also set flag to flush on next init (in case it doesn't work immediately)
+    update_option('iburger_passport_flush_rewrite', 'yes');
+});
+
+// Deactivation hook
+register_deactivation_hook(__FILE__, function() {
+    flush_rewrite_rules();
+});
+
+// Initialize plugin
+IBurger_Passport_Loyalty::get_instance();
+

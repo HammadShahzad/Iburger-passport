@@ -1,0 +1,440 @@
+/**
+ * iBurger Passport Loyalty - Admin Styles
+ */
+
+/* General Admin Wrapper */
+.iburger-admin-wrap {
+    max-width: 1200px;
+    margin: 20px 20px 20px 0;
+}
+
+.iburger-admin-wrap h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.8rem;
+    color: #1d2327;
+    margin-bottom: 30px;
+}
+
+.iburger-admin-wrap h1 .dashicons {
+    font-size: 1.8rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    color: #6B1D2B;
+}
+
+/* Dashboard Stats */
+.iburger-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-box {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #6B1D2B;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Dashboard Sections */
+.iburger-dashboard-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 1024px) {
+    .iburger-dashboard-sections {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dashboard-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+}
+
+.dashboard-section h2 {
+    font-size: 1.2rem;
+    color: #1d2327;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+/* Setup Steps */
+.setup-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: step;
+}
+
+.setup-steps li {
+    position: relative;
+    padding: 15px 0 15px 50px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.setup-steps li:last-child {
+    border-bottom: none;
+}
+
+.setup-steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 15px;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #6B1D2B, #C41E3A);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.setup-steps li strong {
+    display: block;
+    font-size: 1rem;
+    color: #1d2327;
+    margin-bottom: 5px;
+}
+
+.setup-steps li p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+
+/* Countries Grid */
+.countries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+}
+
+.country-card {
+    background: #f8f8f8;
+    border-radius: 10px;
+    padding: 20px 15px;
+    text-align: center;
+    border: 1px solid #e8e8e8;
+    transition: all 0.2s ease;
+}
+
+.country-card:hover {
+    background: #fff;
+    border-color: #6B1D2B;
+    box-shadow: 0 4px 12px rgba(107, 29, 43, 0.15);
+}
+
+.country-flag {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+.country-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #1d2327;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.country-code {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #888;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.country-products {
+    font-size: 0.7rem;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.no-items {
+    color: #888;
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+/* Shortcode Info */
+.iburger-shortcode-info {
+    background: linear-gradient(135deg, #f8f4e8 0%, #fff9e6 100%);
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid #e8dfc5;
+}
+
+.iburger-shortcode-info h3 {
+    font-size: 1.1rem;
+    color: #6B1D2B;
+    margin: 0 0 10px 0;
+}
+
+.iburger-shortcode-info code {
+    display: inline-block;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #6B1D2B;
+    font-weight: 600;
+    border: 2px dashed #C9A227;
+    margin-bottom: 10px;
+}
+
+.iburger-shortcode-info p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Settings Form */
+.iburger-settings-form {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+}
+
+.settings-section {
+    padding: 30px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.settings-section:last-of-type {
+    border-bottom: none;
+}
+
+.settings-section h2 {
+    font-size: 1.2rem;
+    color: #1d2327;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.settings-section .form-table th {
+    padding: 15px 10px 15px 0;
+    width: 200px;
+}
+
+.settings-section .form-table td {
+    padding: 15px 10px;
+}
+
+.settings-section .form-table input[type="text"],
+.settings-section .form-table input[type="number"],
+.settings-section .form-table select,
+.settings-section .form-table textarea {
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+}
+
+.settings-section .form-table input[type="text"]:focus,
+.settings-section .form-table input[type="number"]:focus,
+.settings-section .form-table select:focus,
+.settings-section .form-table textarea:focus {
+    border-color: #6B1D2B;
+    box-shadow: 0 0 0 2px rgba(107, 29, 43, 0.1);
+    outline: none;
+}
+
+/* How It Works */
+.how-it-works {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .how-it-works {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .how-it-works {
+        grid-template-columns: 1fr;
+    }
+}
+
+.how-it-works .step {
+    text-align: center;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    position: relative;
+}
+
+.how-it-works .step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: #ccc;
+    z-index: 1;
+}
+
+@media (max-width: 900px) {
+    .how-it-works .step:not(:last-child)::after {
+        display: none;
+    }
+}
+
+.step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6B1D2B, #C41E3A);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+}
+
+.how-it-works .step h4 {
+    font-size: 0.95rem;
+    color: #1d2327;
+    margin: 0 0 8px 0;
+}
+
+.how-it-works .step p {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Submit Button */
+.iburger-settings-form .submit {
+    padding: 20px 30px;
+    background: #f8f8f8;
+    margin: 0;
+}
+
+.iburger-settings-form .button-primary {
+    background: linear-gradient(135deg, #6B1D2B, #C41E3A);
+    border: none;
+    padding: 10px 30px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.iburger-settings-form .button-primary:hover {
+    background: linear-gradient(135deg, #5a1825, #a31830);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107, 29, 43, 0.3);
+}
+
+/* Meta Box Styles */
+.burger_country_details .form-table {
+    margin-top: 0;
+}
+
+.burger_country_details .form-table th {
+    width: 150px;
+    padding: 15px 10px 15px 0;
+}
+
+.burger_country_details .form-table td {
+    padding: 15px 10px;
+}
+
+#stamp_image_preview img {
+    border-radius: 8px;
+    border: 2px solid #e8e8e8;
+}
+
+/* Notice Styling */
+.iburger-admin-wrap .notice {
+    border-radius: 8px;
+    border-left-width: 4px;
+    margin: 0 0 20px 0;
+}
+
+.iburger-admin-wrap .notice-success {
+    border-left-color: #46b450;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .iburger-admin-wrap {
+        margin: 10px;
+    }
+
+    .iburger-dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-box {
+        padding: 20px 15px;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .settings-section .form-table th,
+    .settings-section .form-table td {
+        display: block;
+        width: 100%;
+        padding: 10px 0;
+    }
+}
+
