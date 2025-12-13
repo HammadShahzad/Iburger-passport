@@ -3,6 +3,17 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Handle check for updates
+if (isset($_GET['check_updates']) && $_GET['check_updates'] === '1' && current_user_can('manage_options')) {
+    // Clear update transients to force a fresh check
+    delete_site_transient('update_plugins');
+    delete_transient('update_plugins');
+    
+    // Redirect to updates page
+    wp_redirect(admin_url('update-core.php?force-check=1'));
+    exit;
+}
+
 // Handle form submission
 if (isset($_POST['iburger_save_settings']) && wp_verify_nonce($_POST['iburger_settings_nonce'], 'iburger_save_settings')) {
     update_option('iburger_stamps_required', intval($_POST['stamps_required']));
@@ -118,5 +129,36 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
             <input type="submit" name="iburger_save_settings" class="button button-primary" value="<?php _e('Save Settings', 'iburger-passport'); ?>">
         </p>
     </form>
+    
+    <div class="settings-section" style="margin-top: 30px; background: #f8f9fa; border: 1px solid #e0e0e0;">
+        <h2><?php _e('Plugin Information', 'iburger-passport'); ?></h2>
+        <table class="form-table">
+            <tr>
+                <th><?php _e('Current Version', 'iburger-passport'); ?></th>
+                <td>
+                    <strong style="font-size: 1.2em; color: #006400;"><?php echo IBURGER_PASSPORT_VERSION; ?></strong>
+                </td>
+            </tr>
+            <tr>
+                <th><?php _e('Check for Updates', 'iburger-passport'); ?></th>
+                <td>
+                    <a href="<?php echo admin_url('admin.php?page=iburger-passport-settings&check_updates=1'); ?>" class="button button-secondary" style="background: #006400; color: white; border-color: #004d00;">
+                        <span class="dashicons dashicons-update" style="margin-top: 4px;"></span>
+                        <?php _e('Check for Updates Now', 'iburger-passport'); ?>
+                    </a>
+                    <p class="description"><?php _e('Click to check if a new version is available on GitHub.', 'iburger-passport'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><?php _e('GitHub Repository', 'iburger-passport'); ?></th>
+                <td>
+                    <a href="https://github.com/HammadShahzad/Iburger-passport" target="_blank" class="button button-link">
+                        <span class="dashicons dashicons-external" style="margin-top: 4px;"></span>
+                        <?php _e('View on GitHub', 'iburger-passport'); ?>
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 
