@@ -84,7 +84,6 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
                         <div class="holder-name"><?php echo esc_html($user->display_name); ?></div>
                     </div>
                     <div class="open-passport-hint">
-                        <span class="arrow">→</span>
                         <?php _e('Click to open', 'iburger-passport'); ?>
                     </div>
                 </div>
@@ -264,7 +263,7 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
 
     <!-- Add Order Form -->
     <div class="add-order-section">
-        <h3>📝 <?php _e('Add Order to Passport', 'iburger-passport'); ?></h3>
+        <h3><?php _e('Add Order to Passport', 'iburger-passport'); ?></h3>
         <p><?php _e('Have a completed order? Enter your order number to add stamps to your passport.', 'iburger-passport'); ?></p>
         <form id="addOrderForm" class="add-order-form">
             <div class="form-group">
