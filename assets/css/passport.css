@@ -272,6 +272,7 @@
     max-width: 480px;
     margin: 0 auto;
     min-height: 580px;
+    transition: min-height 0.3s ease; /* Smooth height transition */
 }
 
 /* ============================================
@@ -279,8 +280,10 @@
    ============================================ */
 .passport-page {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto;
     width: 100%;
     min-height: 580px;
     opacity: 0;
@@ -289,6 +292,8 @@
     pointer-events: none;
     border-radius: 16px;
     overflow: hidden;
+    z-index: 1;
+    background: var(--passport-paper);
 }
 
 .passport-page.active {
