@@ -370,71 +370,76 @@
 
 .passport-title {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     font-weight: 700;
-    color: var(--passport-accent);
-    letter-spacing: 4px;
+    color: #F5E6C8;
+    letter-spacing: 5px;
     text-transform: uppercase;
-    margin: 0 0 12px 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    margin: 0 0 16px 0;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+    line-height: 1.2;
 }
 
 .passport-subtitle {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 300;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    font-weight: 400;
+    color: #E8DFC5;
     margin: 0 0 40px 0;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .passport-decoration {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     color: var(--passport-accent);
-    opacity: 0.6;
     margin-bottom: 40px;
 }
 
 .passport-decoration span {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: currentColor;
     border-radius: 50%;
+    opacity: 0.7;
 }
 
 .passport-decoration span:nth-child(2) {
-    width: 40px;
+    width: 60px;
     height: 2px;
     border-radius: 2px;
+    opacity: 0.5;
 }
 
 .holder-info {
-    padding: 24px;
-    border: 1px solid rgba(201, 162, 39, 0.3);
+    padding: 28px 32px;
+    border: 2px solid rgba(201, 162, 39, 0.4);
     border-radius: 12px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.25);
     width: 100%;
-    max-width: 280px;
+    max-width: 300px;
+    backdrop-filter: blur(5px);
 }
 
 .holder-label {
     font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     letter-spacing: 3px;
-    color: rgba(255, 255, 255, 0.5);
-    margin-bottom: 8px;
+    color: rgba(201, 162, 39, 0.8);
+    margin-bottom: 10px;
     text-transform: uppercase;
 }
 
 .holder-name {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: var(--passport-paper);
+    color: #FFFFFF;
     word-break: break-all;
-    line-height: 1.2;
+    line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .open-passport-hint {
@@ -442,13 +447,17 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.5);
-    transition: color 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--passport-accent);
+    transition: all 0.3s ease;
+    opacity: 0.9;
 }
 
 .front-cover:hover .open-passport-hint {
-    color: var(--passport-accent);
+    color: #F5E6C8;
+    opacity: 1;
+    transform: translateX(5px);
 }
 
 .open-passport-hint .arrow {
