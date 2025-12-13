@@ -114,6 +114,11 @@ For support, please contact [your support email/link].
 
 ## Changelog
 
+### 1.0.6
+- Fixed GitHub auto-updater folder renaming issue
+- Made repository public for WordPress update checks
+- Added plugin header metadata for WP compatibility
+
 ### 1.0.5
 - Updated color scheme to match International Burgers brand (Green/White)
 - Fixed text overflow issues for long email addresses on passport

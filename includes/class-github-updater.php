@@ -74,9 +74,23 @@ class IBurger_Passport_Updater {
     public function after_install($response, $hook_extra, $result) {
         global $wp_filesystem;
 
-        $install_directory = plugin_dir_path($this->plugin_file);
+        // Check if this is our plugin being updated
+        if (!isset($hook_extra['plugin']) || $hook_extra['plugin'] !== plugin_basename($this->plugin_file)) {
+            return $result;
+        }
+
+        // Get the correct plugin directory name
+        $plugin_folder = dirname(plugin_basename($this->plugin_file));
+        $install_directory = WP_PLUGIN_DIR . '/' . $plugin_folder;
+
+        // Move the extracted folder to the correct location
         $wp_filesystem->move($result['destination'], $install_directory);
         $result['destination'] = $install_directory;
+
+        // Re-activate the plugin if it was active before
+        if (is_plugin_active(plugin_basename($this->plugin_file))) {
+            activate_plugin(plugin_basename($this->plugin_file));
+        }
 
         return $result;
     }
