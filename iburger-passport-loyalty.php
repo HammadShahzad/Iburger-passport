@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.1.1
+ * Version: 1.2.0
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.1.1');
+define('IBURGER_PASSPORT_VERSION', '1.2.0');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -446,18 +446,28 @@ class IBurger_Passport_Loyalty {
         $user_stamps = get_user_meta($user_id, '_iburger_stamps', true);
         if (!is_array($user_stamps)) return;
         
-        // Get unique countries
+        // Get unique countries collected by user
         $unique_countries = array_unique(array_column($user_stamps, 'country_id'));
-        $stamps_required = get_option('iburger_stamps_required', 6);
         
-        if (count($unique_countries) >= $stamps_required) {
-            // Check if reward already claimed for this batch
+        // Get TOTAL number of burger countries in the system
+        $all_countries = get_posts(array(
+            'post_type' => 'burger_country',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'fields' => 'ids'
+        ));
+        $total_countries = count($all_countries);
+        
+        // Customer must collect ALL countries to earn reward
+        if (count($unique_countries) >= $total_countries && $total_countries > 0) {
+            // Check if reward already claimed
             $rewards_claimed = get_user_meta($user_id, '_iburger_rewards_claimed', true);
             if (!is_array($rewards_claimed)) {
                 $rewards_claimed = array();
             }
             
-            $batch_number = floor(count($unique_countries) / $stamps_required);
+            // Calculate which reward batch this is (in case they collect all twice with new countries added)
+            $batch_number = floor(count($unique_countries) / $total_countries);
             
             if (!in_array($batch_number, $rewards_claimed)) {
                 // Mark as eligible for reward

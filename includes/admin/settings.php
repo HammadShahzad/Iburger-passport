@@ -67,12 +67,21 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
         <div class="settings-section">
             <h2><?php _e('Reward Settings', 'iburger-passport'); ?></h2>
             
+            <?php
+            // Count total countries
+            $total_countries = wp_count_posts('burger_country')->publish;
+            ?>
+            
             <table class="form-table">
                 <tr>
-                    <th><label for="stamps_required"><?php _e('Stamps Required for Reward', 'iburger-passport'); ?></label></th>
+                    <th><?php _e('Countries to Collect', 'iburger-passport'); ?></th>
                     <td>
-                        <input type="number" id="stamps_required" name="stamps_required" value="<?php echo esc_attr($stamps_required); ?>" min="1" max="20" class="small-text">
-                        <p class="description"><?php _e('Number of unique country stamps needed to unlock the free product reward', 'iburger-passport'); ?></p>
+                        <strong style="font-size: 1.5em; color: #006400;"><?php echo $total_countries; ?></strong>
+                        <span style="color: #666;"> <?php _e('countries in your passport', 'iburger-passport'); ?></span>
+                        <p class="description" style="margin-top: 10px; padding: 10px; background: #f0fff0; border-left: 4px solid #006400;">
+                            <strong><?php _e('How it works:', 'iburger-passport'); ?></strong><br>
+                            <?php _e('Customers must collect stamps from ALL countries to earn the free reward. Add more countries in "Burger Countries" menu.', 'iburger-passport'); ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -120,7 +129,7 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
                 <div class="step">
                     <span class="step-number">4</span>
                     <h4><?php _e('Earn Reward', 'iburger-passport'); ?></h4>
-                    <p><?php printf(__('After %d unique stamps, customer gets a coupon for a free product!', 'iburger-passport'), $stamps_required); ?></p>
+                    <p><?php printf(__('After collecting ALL %d country stamps, customer gets a coupon for a free product!', 'iburger-passport'), $total_countries); ?></p>
                 </div>
             </div>
         </div>

@@ -3,7 +3,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$stamps_required = get_option('iburger_stamps_required', 6);
+// Total countries in system - customer must collect ALL
+$all_country_ids = get_posts(array(
+    'post_type' => 'burger_country',
+    'posts_per_page' => -1,
+    'post_status' => 'publish',
+    'fields' => 'ids'
+));
+$stamps_required = count($all_country_ids);
 
 // Get all users with stamps
 $users = get_users(array(

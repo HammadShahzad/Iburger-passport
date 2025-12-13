@@ -7,7 +7,16 @@ $user_id = get_current_user_id();
 $user = wp_get_current_user();
 $stamps = IBurger_Passport_Loyalty::get_user_stamps($user_id);
 $unique_count = IBurger_Passport_Loyalty::get_unique_country_count($user_id);
-$stamps_required = get_option('iburger_stamps_required', 6);
+
+// Get total countries - customer must collect ALL to win
+$all_country_ids = get_posts(array(
+    'post_type' => 'burger_country',
+    'posts_per_page' => -1,
+    'post_status' => 'publish',
+    'fields' => 'ids'
+));
+$stamps_required = count($all_country_ids);
+
 $passport_title = get_option('iburger_passport_title', 'Burger World Passport');
 $passport_subtitle = get_option('iburger_passport_subtitle', 'Collect stamps from around the world!');
 $has_pending_reward = get_user_meta($user_id, '_iburger_reward_pending', true);
