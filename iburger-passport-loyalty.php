@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.5.0
+ * Version: 1.5.1
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.5.0');
+define('IBURGER_PASSPORT_VERSION', '1.5.1');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -73,6 +73,11 @@ class IBurger_Passport_Loyalty {
         
         // WooCommerce hooks
         add_action('woocommerce_order_status_completed', array($this, 'process_completed_order'));
+        // Handle refunds/cancellations
+        add_action('woocommerce_order_status_refunded', array($this, 'remove_stamps_on_refund'));
+        add_action('woocommerce_order_status_cancelled', array($this, 'remove_stamps_on_refund'));
+        add_action('woocommerce_order_status_failed', array($this, 'remove_stamps_on_refund'));
+        
         add_action('woocommerce_account_menu_items', array($this, 'add_passport_menu_item'));
         add_filter('woocommerce_get_query_vars', array($this, 'add_passport_query_vars'));
         add_action('init', array($this, 'add_passport_endpoint'), 0);
@@ -469,6 +474,48 @@ class IBurger_Passport_Loyalty {
         if (!empty($stamps_added)) {
             $this->add_stamps_to_user($user_id, array_unique($stamps_added), $order_id);
             update_post_meta($order_id, '_iburger_stamps_processed', true);
+        }
+    }
+    
+    /**
+     * Remove stamps if order is refunded/cancelled
+     */
+    public function remove_stamps_on_refund($order_id) {
+        $order = wc_get_order($order_id);
+        if (!$order) return;
+        
+        $user_id = $order->get_user_id();
+        
+        if ($user_id) {
+            $this->process_stamp_removal($user_id, $order_id);
+        }
+    }
+    
+    private function process_stamp_removal($user_id, $order_id) {
+        $stamps = get_user_meta($user_id, '_iburger_stamps', true);
+        if (!is_array($stamps)) return;
+        
+        $initial_count = count($stamps);
+        
+        // Filter out stamps from this order
+        $stamps = array_filter($stamps, function($stamp) use ($order_id) {
+            return !isset($stamp['order_id']) || $stamp['order_id'] != $order_id;
+        });
+        
+        if (count($stamps) < $initial_count) {
+            // Re-index array
+            $stamps = array_values($stamps);
+            update_user_meta($user_id, '_iburger_stamps', $stamps);
+            
+            // Remove from claimed list
+            $claimed_orders = get_user_meta($user_id, '_iburger_claimed_orders', true);
+            if (is_array($claimed_orders)) {
+                $claimed_orders = array_diff($claimed_orders, array($order_id));
+                update_user_meta($user_id, '_iburger_claimed_orders', array_values($claimed_orders));
+            }
+            
+            // Reset processed flag on order so it can be re-added if status changes back
+            delete_post_meta($order_id, '_iburger_stamps_processed');
         }
     }
     

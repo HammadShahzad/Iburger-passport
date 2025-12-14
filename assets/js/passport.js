@@ -132,8 +132,12 @@
         updateBookHeight: function() {
             const $activePage = this.$pages.filter('.active');
             if ($activePage.length) {
-                const height = $activePage.outerHeight();
-                this.$passportBook.css('min-height', height + 'px');
+                // Get height of content to ensure book expands
+                const $content = $activePage.find('.page-content, .cover-content, .rewards-content');
+                const height = $content.length ? $content.outerHeight() : $activePage.outerHeight();
+                
+                // Add buffer for shadows/transform
+                this.$passportBook.css('min-height', (height + 20) + 'px');
             }
         },
 
