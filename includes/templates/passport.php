@@ -128,6 +128,14 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
                             <span class="detail-value"><?php echo $unique_count; ?></span>
                         </div>
                     </div>
+                    
+                    <!-- Apple Wallet Button -->
+                    <div class="passport-actions" style="margin-top: 20px;">
+                        <a href="<?php echo esc_url(admin_url('admin-ajax.php?action=iburger_download_pass&nonce=' . wp_create_nonce('iburger_wallet_pass'))); ?>" class="add-to-wallet-btn" target="_blank">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Add_to_Apple_Wallet_badge.svg" alt="Add to Apple Wallet">
+                        </a>
+                    </div>
+
                     <div class="passport-stamp-decorative">
                         <div class="stamp-circle">
                             <span>BURGER</span>

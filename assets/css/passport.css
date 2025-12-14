@@ -485,16 +485,6 @@
     transform: translateX(5px);
 }
 
-.open-passport-hint .arrow {
-    display: inline-block;
-    animation: pointRight 1.5s ease-in-out infinite;
-}
-
-@keyframes pointRight {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(6px); }
-}
-
 .front-cover:hover {
     transform: scale(1.02);
     box-shadow: var(--shadow-lg), var(--shadow-glow);
@@ -885,7 +875,7 @@
 .rewards-content h3 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 1.4rem;
-    color: var(--passport-navy);
+    color: var(--passport-text);
     margin: 0 0 24px 0;
 }
 
@@ -902,7 +892,7 @@
     background: white;
     padding: 20px 24px;
     border-radius: 16px;
-    border: 2px dashed var(--passport-gold);
+    border: 2px dashed var(--passport-accent);
     box-shadow: var(--shadow-sm);
     transition: all 0.3s ease;
 }
@@ -925,7 +915,7 @@
     font-family: 'Space Mono', monospace;
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--passport-navy);
+    color: var(--passport-primary);
     letter-spacing: 1px;
 }
 
@@ -936,7 +926,7 @@
 }
 
 .copy-coupon {
-    background: var(--passport-navy);
+    background: var(--passport-primary);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -949,7 +939,7 @@
 }
 
 .copy-coupon:hover {
-    background: var(--passport-midnight);
+    background: var(--passport-primary-dark);
     transform: scale(1.05);
 }
 
@@ -987,7 +977,7 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: var(--passport-gold);
+    color: var(--passport-accent);
     margin-bottom: 16px;
     font-weight: 600;
 }
@@ -1007,11 +997,11 @@
 
 .preview-name {
     font-weight: 600;
-    color: var(--passport-navy);
+    color: var(--passport-text);
 }
 
 .preview-free {
-    background: linear-gradient(135deg, var(--passport-gold), var(--passport-ember));
+    background: linear-gradient(135deg, var(--passport-accent), var(--passport-ember));
     color: white;
     padding: 6px 20px;
     border-radius: 100px;
@@ -1076,7 +1066,7 @@
     justify-content: center;
     align-items: center;
     gap: 16px;
-    margin-top: 20px; /* Reduced from 32px */
+    margin-top: 20px;
     position: relative;
     z-index: 20;
 }
@@ -1334,7 +1324,7 @@
 }
 
 .modal-close:hover {
-    color: var(--passport-navy);
+    color: var(--passport-primary);
     transform: rotate(90deg);
 }
 
@@ -1360,7 +1350,7 @@
     font-family: 'Cormorant Garamond', serif;
     font-size: 2.2rem;
     font-weight: 700;
-    color: var(--passport-navy);
+    color: var(--passport-primary);
     margin: 0 0 12px 0;
 }
 
@@ -1372,7 +1362,7 @@
 
 .reward-coupon-display {
     background: white;
-    border: 3px dashed var(--passport-gold);
+    border: 3px dashed var(--passport-accent);
     border-radius: 20px;
     padding: 28px;
     margin-bottom: 24px;
@@ -1392,13 +1382,13 @@
     font-family: 'Space Mono', monospace;
     font-size: 1.6rem;
     font-weight: 700;
-    color: var(--passport-navy);
+    color: var(--passport-primary);
     letter-spacing: 2px;
     margin-bottom: 16px;
 }
 
 .copy-coupon-btn {
-    background: var(--passport-navy);
+    background: var(--passport-primary);
     color: white;
     border: none;
     padding: 12px 28px;
@@ -1411,7 +1401,7 @@
 }
 
 .copy-coupon-btn:hover {
-    background: var(--passport-midnight);
+    background: var(--passport-primary-dark);
     transform: scale(1.05);
 }
 
@@ -1423,8 +1413,8 @@
 
 .shop-now-btn {
     display: inline-block;
-    background: linear-gradient(135deg, var(--passport-gold), #B8860B);
-    color: var(--passport-navy);
+    background: linear-gradient(135deg, var(--passport-accent), #B8860B);
+    color: white;
     text-decoration: none;
     padding: 16px 40px;
     border-radius: 100px;
@@ -1439,7 +1429,7 @@
 .shop-now-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
-    color: var(--passport-navy);
+    color: white;
 }
 
 /* ============================================
@@ -1508,7 +1498,7 @@
     font-family: 'Cormorant Garamond', serif;
     font-size: 1.8rem;
     font-weight: 700;
-    color: var(--passport-navy);
+    color: var(--passport-primary);
     margin-bottom: 8px;
     display: block;
 }
@@ -1677,6 +1667,20 @@
         width: 120px;
         height: 120px;
     }
+}
+
+.add-to-wallet-btn {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.add-to-wallet-btn:hover {
+    transform: scale(1.05);
+}
+
+.add-to-wallet-btn img {
+    height: 40px;
+    width: auto;
 }
 
 /* ============================================

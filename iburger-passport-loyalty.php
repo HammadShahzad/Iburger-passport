@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.2.4
+ * Version: 1.3.0
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.2.4');
+define('IBURGER_PASSPORT_VERSION', '1.3.0');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -65,6 +65,7 @@ class IBurger_Passport_Loyalty {
         // AJAX handlers
         add_action('wp_ajax_iburger_verify_order', array($this, 'ajax_verify_order'));
         add_action('wp_ajax_iburger_claim_reward', array($this, 'ajax_claim_reward'));
+        add_action('wp_ajax_iburger_download_pass', array($this, 'ajax_download_pass'));
         
         // WooCommerce hooks
         add_action('woocommerce_order_status_completed', array($this, 'process_completed_order'));
@@ -629,6 +630,33 @@ class IBurger_Passport_Loyalty {
             'product_name' => $product ? $product->get_name() : __('Free Product', 'iburger-passport'),
             'expires' => date('F j, Y', strtotime('+30 days')),
         ));
+    }
+    
+    public function ajax_download_pass() {
+        if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'iburger_wallet_pass')) {
+            wp_die('Invalid security token');
+        }
+        
+        if (!is_user_logged_in()) {
+            wp_die('Please log in first');
+        }
+        
+        // This is a placeholder. Real pass generation requires Apple Certificates.
+        // For now, we redirect to a "Coming Soon" or instructions page, or output a simple text file.
+        
+        $user = wp_get_current_user();
+        $stamps = $this->get_unique_country_count($user->ID);
+        
+        header('Content-Type: text/plain');
+        header('Content-Disposition: attachment; filename="passport-info.txt"');
+        
+        echo "Burger Passport\n";
+        echo "---------------\n";
+        echo "Holder: " . $user->display_name . "\n";
+        echo "Countries Visited: " . $stamps . "\n";
+        echo "\n";
+        echo "Apple Wallet integration coming soon!";
+        exit;
     }
     
     public static function get_user_stamps($user_id = null) {
