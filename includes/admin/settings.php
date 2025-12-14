@@ -22,6 +22,11 @@ if (isset($_POST['iburger_save_settings']) && wp_verify_nonce($_POST['iburger_se
     update_option('iburger_passport_subtitle', sanitize_text_field($_POST['passport_subtitle']));
     update_option('iburger_reward_message', sanitize_textarea_field($_POST['reward_message']));
     
+    // Email settings
+    update_option('iburger_email_stamp_added', isset($_POST['email_stamp_added']) ? 1 : 0);
+    update_option('iburger_email_reward_unlocked', isset($_POST['email_reward_unlocked']) ? 1 : 0);
+    update_option('iburger_email_coupon_issued', isset($_POST['email_coupon_issued']) ? 1 : 0);
+    
     echo '<div class="notice notice-success"><p>' . __('Settings saved successfully!', 'iburger-passport') . '</p></div>';
 }
 
@@ -30,6 +35,11 @@ $reward_product_id = get_option('iburger_reward_product', 0);
 $passport_title = get_option('iburger_passport_title', 'Burger World Passport');
 $passport_subtitle = get_option('iburger_passport_subtitle', 'Collect stamps from around the world!');
 $reward_message = get_option('iburger_reward_message', 'Congratulations! You\'ve traveled the burger world and earned a FREE burger!');
+
+// Email settings (default to enabled)
+$email_stamp_added = get_option('iburger_email_stamp_added', 1);
+$email_reward_unlocked = get_option('iburger_email_reward_unlocked', 1);
+$email_coupon_issued = get_option('iburger_email_coupon_issued', 1);
 
 $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
 ?>
@@ -103,6 +113,59 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
                     <td>
                         <textarea id="reward_message" name="reward_message" rows="3" class="large-text"><?php echo esc_textarea($reward_message); ?></textarea>
                         <p class="description"><?php _e('Message shown when customer unlocks their reward', 'iburger-passport'); ?></p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="settings-section">
+            <h2><?php _e('Email Notifications', 'iburger-passport'); ?></h2>
+            <p class="description" style="margin-bottom: 20px;"><?php _e('Control which emails are sent to customers during their passport journey.', 'iburger-passport'); ?></p>
+            
+            <table class="form-table">
+                <tr>
+                    <th><?php _e('Stamp Added Email', 'iburger-passport'); ?></th>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" name="email_stamp_added" value="1" <?php checked($email_stamp_added, 1); ?>>
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 12px; color: #666;">
+                            <?php _e('Send email when customer claims stamps from an order', 'iburger-passport'); ?>
+                        </span>
+                        <p class="description" style="margin-top: 8px;">
+                            📬 <?php _e('Shows: new stamps added, current progress, countries remaining', 'iburger-passport'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php _e('Reward Unlocked Email', 'iburger-passport'); ?></th>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" name="email_reward_unlocked" value="1" <?php checked($email_reward_unlocked, 1); ?>>
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 12px; color: #666;">
+                            <?php _e('Send email when customer collects all countries', 'iburger-passport'); ?>
+                        </span>
+                        <p class="description" style="margin-top: 8px;">
+                            🎉 <?php _e('Shows: congratulations message, reminder to claim reward', 'iburger-passport'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php _e('Coupon Issued Email', 'iburger-passport'); ?></th>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" name="email_coupon_issued" value="1" <?php checked($email_coupon_issued, 1); ?>>
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 12px; color: #666;">
+                            <?php _e('Send email when customer claims their reward coupon', 'iburger-passport'); ?>
+                        </span>
+                        <p class="description" style="margin-top: 8px;">
+                            🎁 <?php _e('Shows: coupon code, product name, expiry date, usage instructions', 'iburger-passport'); ?>
+                        </p>
                     </td>
                 </tr>
             </table>

@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.3.2
+ * Version: 1.4.0
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.3.2');
+define('IBURGER_PASSPORT_VERSION', '1.4.0');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -474,6 +474,9 @@ class IBurger_Passport_Loyalty {
                 // Mark as eligible for reward
                 update_user_meta($user_id, '_iburger_reward_pending', true);
                 update_user_meta($user_id, '_iburger_pending_batch', $batch_number);
+                
+                // Send reward unlocked email
+                $this->send_reward_unlocked_email($user_id);
             }
         }
     }
@@ -558,6 +561,9 @@ class IBurger_Passport_Loyalty {
         $claimed_orders[] = $order_id;
         update_user_meta($user_id, '_iburger_claimed_orders', $claimed_orders);
         
+        // Send stamp added email
+        $this->send_stamp_added_email($user_id, $stamps_added);
+        
         wp_send_json_success(array(
             'message' => __('Stamps added successfully!', 'iburger-passport'),
             'stamps' => $stamps_added
@@ -623,12 +629,17 @@ class IBurger_Passport_Loyalty {
         update_user_meta($user_id, '_iburger_reward_coupons', $user_coupons);
         
         $product = wc_get_product($reward_product_id);
+        $product_name = $product ? $product->get_name() : __('Free Product', 'iburger-passport');
+        $expires_formatted = date('F j, Y', strtotime('+30 days'));
+        
+        // Send coupon issued email
+        $this->send_coupon_issued_email($user_id, $coupon_code, $product_name, $expires_formatted);
         
         wp_send_json_success(array(
             'message' => __('Congratulations! Your reward has been unlocked!', 'iburger-passport'),
             'coupon' => $coupon_code,
-            'product_name' => $product ? $product->get_name() : __('Free Product', 'iburger-passport'),
-            'expires' => date('F j, Y', strtotime('+30 days')),
+            'product_name' => $product_name,
+            'expires' => $expires_formatted,
         ));
     }
     
@@ -657,6 +668,100 @@ class IBurger_Passport_Loyalty {
         echo "\n";
         echo "Apple Wallet integration coming soon!";
         exit;
+    }
+    
+    /**
+     * Send Stamp Added Email
+     */
+    public function send_stamp_added_email($user_id, $stamps_added) {
+        if (!get_option('iburger_email_stamp_added', true)) {
+            return;
+        }
+        
+        $user = get_user_by('id', $user_id);
+        if (!$user) return;
+        
+        $customer_name = $user->display_name ?: $user->user_login;
+        $total_collected = $this->get_unique_country_count($user_id);
+        
+        $all_countries = get_posts(array(
+            'post_type' => 'burger_country',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'fields' => 'ids'
+        ));
+        $total_countries = count($all_countries);
+        
+        $passport_url = wc_get_account_endpoint_url('burger-passport');
+        
+        ob_start();
+        include IBURGER_PASSPORT_PATH . 'includes/emails/stamp-added.php';
+        $email_content = ob_get_clean();
+        
+        $subject = sprintf(__('[%s] New Stamp Added to Your Passport! 🍔', 'iburger-passport'), get_bloginfo('name'));
+        
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+        
+        wp_mail($user->user_email, $subject, $email_content, $headers);
+    }
+    
+    /**
+     * Send Reward Unlocked Email
+     */
+    public function send_reward_unlocked_email($user_id) {
+        if (!get_option('iburger_email_reward_unlocked', true)) {
+            return;
+        }
+        
+        $user = get_user_by('id', $user_id);
+        if (!$user) return;
+        
+        $customer_name = $user->display_name ?: $user->user_login;
+        
+        $all_countries = get_posts(array(
+            'post_type' => 'burger_country',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'fields' => 'ids'
+        ));
+        $total_countries = count($all_countries);
+        
+        $passport_url = wc_get_account_endpoint_url('burger-passport');
+        
+        ob_start();
+        include IBURGER_PASSPORT_PATH . 'includes/emails/reward-unlocked.php';
+        $email_content = ob_get_clean();
+        
+        $subject = sprintf(__('[%s] 🎉 Congratulations! You Unlocked a Reward!', 'iburger-passport'), get_bloginfo('name'));
+        
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+        
+        wp_mail($user->user_email, $subject, $email_content, $headers);
+    }
+    
+    /**
+     * Send Coupon Issued Email
+     */
+    public function send_coupon_issued_email($user_id, $coupon_code, $product_name, $expires_date) {
+        if (!get_option('iburger_email_coupon_issued', true)) {
+            return;
+        }
+        
+        $user = get_user_by('id', $user_id);
+        if (!$user) return;
+        
+        $customer_name = $user->display_name ?: $user->user_login;
+        $shop_url = wc_get_page_permalink('shop');
+        
+        ob_start();
+        include IBURGER_PASSPORT_PATH . 'includes/emails/coupon-issued.php';
+        $email_content = ob_get_clean();
+        
+        $subject = sprintf(__('[%s] 🎁 Your FREE Reward Coupon is Ready!', 'iburger-passport'), get_bloginfo('name'));
+        
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+        
+        wp_mail($user->user_email, $subject, $email_content, $headers);
     }
     
     public static function get_user_stamps($user_id = null) {
