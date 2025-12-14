@@ -88,7 +88,17 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
             <!-- Front Cover -->
             <div class="passport-page cover front-cover" data-page="cover">
                 <div class="cover-content">
-                    <div class="passport-emblem">🍔</div>
+                    <div class="passport-emblem">
+                        <?php 
+                        if (has_custom_logo()) {
+                            $custom_logo_id = get_theme_mod('custom_logo');
+                            $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
+                            echo '<img src="' . esc_url($logo[0]) . '" alt="' . get_bloginfo('name') . '" class="site-logo-emblem">';
+                        } else {
+                            echo '🍔';
+                        }
+                        ?>
+                    </div>
                     <h1 class="passport-title"><?php echo esc_html($passport_title); ?></h1>
                     <p class="passport-subtitle"><?php echo esc_html($passport_subtitle); ?></p>
                     <div class="passport-decoration">
