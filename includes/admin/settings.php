@@ -109,6 +109,20 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
         </div>
         
         <div class="settings-section">
+            <h2><?php _e('Apple Wallet Configuration', 'iburger-passport'); ?></h2>
+            <div class="notice notice-info inline" style="margin: 0 0 20px 0; padding: 15px;">
+                <p><strong><?php _e('Requirements for Apple Wallet Passes:', 'iburger-passport'); ?></strong></p>
+                <ul style="list-style: disc; margin-left: 20px;">
+                    <li><?php _e('An active <strong>Apple Developer Account</strong> ($99/year)', 'iburger-passport'); ?></li>
+                    <li><?php _e('A <strong>Pass Type ID</strong> certificate (pass.com.yourdomain.passport)', 'iburger-passport'); ?></li>
+                    <li><?php _e('The <strong>WWDR Intermediate Certificate</strong> from Apple', 'iburger-passport'); ?></li>
+                    <li><?php _e('A <strong>Team ID</strong> (from your Apple Developer account)', 'iburger-passport'); ?></li>
+                </ul>
+                <p style="margin-top: 10px;"><?php _e('Once you have these, contact your developer to enable the .pkpass generation.', 'iburger-passport'); ?></p>
+            </div>
+        </div>
+        
+        <div class="settings-section">
             <h2><?php _e('How It Works', 'iburger-passport'); ?></h2>
             <div class="how-it-works">
                 <div class="step">

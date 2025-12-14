@@ -132,7 +132,11 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
                     <!-- Apple Wallet Button -->
                     <div class="passport-actions" style="margin-top: 20px;">
                         <a href="<?php echo esc_url(admin_url('admin-ajax.php?action=iburger_download_pass&nonce=' . wp_create_nonce('iburger_wallet_pass'))); ?>" class="add-to-wallet-btn" target="_blank">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Add_to_Apple_Wallet_badge.svg" alt="Add to Apple Wallet">
+                            <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="120" height="40" rx="10" fill="#1A1A1A"/>
+                                <path d="M22.8 11.2C22.2 11.2 21.6 11.4 21.2 11.8C20.8 12.2 20.6 12.8 20.6 13.4C20.6 14 20.8 14.6 21.2 15C21.6 15.4 22.2 15.6 22.8 15.6C23.4 15.6 24 15.4 24.4 15C24.8 14.6 25 14 25 13.4C25 12.8 24.8 12.2 24.4 11.8C24 11.4 23.4 11.2 22.8 11.2ZM22.8 10C23.7 10 24.6 10.4 25.2 11C25.9 11.6 26.2 12.5 26.2 13.4C26.2 14.3 25.9 15.2 25.2 15.8C24.6 16.4 23.7 16.8 22.8 16.8C21.9 16.8 21 16.4 20.4 15.8C19.7 15.2 19.4 14.3 19.4 13.4C19.4 12.5 19.7 11.6 20.4 11C21 10.4 21.9 10 22.8 10ZM35.4 20.8V28.4H33.8V21.8H31.4V20.8H35.4ZM41.4 28.6C40.6 28.6 39.8 28.4 39.2 28C38.6 27.6 38.2 27 38 26.4L39.4 25.8C39.6 26.2 39.8 26.6 40.2 26.8C40.6 27 41 27.2 41.4 27.2C42.2 27.2 42.6 26.8 42.6 26.2C42.6 25.8 42.4 25.6 42.2 25.4C42 25.2 41.6 25 41 25L40.2 24.8C39.4 24.6 38.8 24.2 38.4 23.8C38 23.4 37.8 22.8 37.8 22.2C37.8 21.6 38 21 38.6 20.6C39.2 20.2 39.8 20 40.8 20C41.4 20 42 20.2 42.6 20.4C43.2 20.6 43.6 21 43.8 21.6L42.4 22.2C42.2 21.8 42 21.6 41.8 21.4C41.6 21.2 41.2 21.2 40.8 21.2C40.2 21.2 39.8 21.4 39.8 22C39.8 22.4 40 22.6 40.2 22.8C40.4 23 40.8 23.2 41.4 23.2L42.2 23.4C43 23.6 43.6 24 44 24.4C44.4 24.8 44.6 25.4 44.6 26C44.6 26.8 44.2 27.4 43.6 28C43 28.4 42.2 28.6 41.4 28.6Z" fill="white"/>
+                                <text x="50" y="25" fill="white" font-family="Arial" font-size="12" font-weight="bold">Add to Wallet</text>
+                            </svg>
                         </a>
                     </div>
 
