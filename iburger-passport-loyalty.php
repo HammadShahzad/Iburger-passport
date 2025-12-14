@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.6.0
+ * Version: 1.6.1
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.6.0');
+define('IBURGER_PASSPORT_VERSION', '1.6.1');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -98,6 +98,20 @@ class IBurger_Passport_Loyalty {
         add_filter('woocommerce_product_get_regular_price', array($this, 'test_mode_price'), 9999, 2);
         add_filter('woocommerce_product_variation_get_price', array($this, 'test_mode_price'), 9999, 2);
         add_filter('woocommerce_product_variation_get_regular_price', array($this, 'test_mode_price'), 9999, 2);
+        
+        // Test Mode - Zero addon prices
+        add_filter('woocommerce_product_addons_option_price_raw', array($this, 'test_mode_addon_price'), 9999, 4);
+        add_filter('woocommerce_product_addons_price_raw', array($this, 'test_mode_addon_price'), 9999, 2);
+        add_filter('ppom_option_price', array($this, 'test_mode_simple_zero'), 9999);
+        add_filter('woocommerce_get_cart_item_from_session', array($this, 'test_mode_cart_item'), 9999, 3);
+        
+        // Test Mode - Zero cart totals (catches everything)
+        add_action('woocommerce_before_calculate_totals', array($this, 'test_mode_cart_totals'), 9999);
+        
+        // Test Mode - Zero taxes
+        add_filter('woocommerce_calc_tax', array($this, 'test_mode_zero_tax'), 9999);
+        add_filter('woocommerce_product_get_tax_class', array($this, 'test_mode_tax_class'), 9999);
+        
         add_action('wp_footer', array($this, 'test_mode_banner'));
     }
     
@@ -888,6 +902,99 @@ class IBurger_Passport_Loyalty {
         }
         
         return 0;
+    }
+    
+    /**
+     * Test Mode: Zero addon prices
+     */
+    public function test_mode_addon_price($price, $option = null, $type = null, $product = null) {
+        if (!get_option('iburger_test_mode', 0) || !current_user_can('manage_options')) {
+            return $price;
+        }
+        if (is_admin() && !wp_doing_ajax()) {
+            return $price;
+        }
+        return 0;
+    }
+    
+    /**
+     * Test Mode: Simple zero return
+     */
+    public function test_mode_simple_zero($price) {
+        if (!get_option('iburger_test_mode', 0) || !current_user_can('manage_options')) {
+            return $price;
+        }
+        if (is_admin() && !wp_doing_ajax()) {
+            return $price;
+        }
+        return 0;
+    }
+    
+    /**
+     * Test Mode: Zero cart item addons
+     */
+    public function test_mode_cart_item($cart_item, $values, $key) {
+        if (!get_option('iburger_test_mode', 0) || !current_user_can('manage_options')) {
+            return $cart_item;
+        }
+        
+        // Zero out addon prices in cart item data
+        if (isset($cart_item['addons']) && is_array($cart_item['addons'])) {
+            foreach ($cart_item['addons'] as &$addon) {
+                if (isset($addon['price'])) {
+                    $addon['price'] = 0;
+                }
+            }
+        }
+        
+        return $cart_item;
+    }
+    
+    /**
+     * Test Mode: Zero all cart totals
+     */
+    public function test_mode_cart_totals($cart) {
+        if (!get_option('iburger_test_mode', 0) || !current_user_can('manage_options')) {
+            return;
+        }
+        
+        if (is_admin() && !wp_doing_ajax()) {
+            return;
+        }
+        
+        // Set all cart item prices to 0
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            $cart_item['data']->set_price(0);
+        }
+    }
+    
+    /**
+     * Test Mode: Zero taxes
+     */
+    public function test_mode_zero_tax($taxes) {
+        if (!get_option('iburger_test_mode', 0) || !current_user_can('manage_options')) {
+            return $taxes;
+        }
+        if (is_admin() && !wp_doing_ajax()) {
+            return $taxes;
+        }
+        
+        // Return empty taxes array
+        return array();
+    }
+    
+    /**
+     * Test Mode: Set tax class to zero-rate
+     */
+    public function test_mode_tax_class($tax_class) {
+        if (!get_option('iburger_test_mode', 0) || !current_user_can('manage_options')) {
+            return $tax_class;
+        }
+        if (is_admin() && !wp_doing_ajax()) {
+            return $tax_class;
+        }
+        
+        return 'zero-rate';
     }
     
     /**
