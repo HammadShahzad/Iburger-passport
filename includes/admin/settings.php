@@ -26,6 +26,9 @@ if (isset($_POST['iburger_save_settings']) && wp_verify_nonce($_POST['iburger_se
     update_option('iburger_email_reward_unlocked', isset($_POST['email_reward_unlocked']) ? 1 : 0);
     update_option('iburger_email_coupon_issued', isset($_POST['email_coupon_issued']) ? 1 : 0);
     
+    // Test mode
+    update_option('iburger_test_mode', isset($_POST['test_mode']) ? 1 : 0);
+    
     echo '<div class="notice notice-success"><p>' . __('Settings saved successfully!', 'iburger-passport') . '</p></div>';
 }
 
@@ -38,6 +41,9 @@ $reward_message = get_option('iburger_reward_message', 'Congratulations! You\'ve
 $email_stamp_added = get_option('iburger_email_stamp_added', 1);
 $email_reward_unlocked = get_option('iburger_email_reward_unlocked', 1);
 $email_coupon_issued = get_option('iburger_email_coupon_issued', 1);
+
+// Test mode
+$test_mode = get_option('iburger_test_mode', 0);
 
 $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
 ?>
@@ -185,6 +191,33 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
             </div>
         </div> 
         -->
+        
+        <div class="settings-section">
+            <h2><?php _e('Developer Tools', 'iburger-passport'); ?></h2>
+            
+            <table class="form-table">
+                <tr>
+                    <th><?php _e('Test Mode', 'iburger-passport'); ?></th>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" name="test_mode" value="1" <?php checked($test_mode, 1); ?>>
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 12px; color: <?php echo $test_mode ? '#dc2626' : '#666'; ?>; font-weight: <?php echo $test_mode ? '700' : '400'; ?>;">
+                            <?php echo $test_mode ? __('⚠️ TEST MODE IS ON', 'iburger-passport') : __('Enable test mode (admins only)', 'iburger-passport'); ?>
+                        </span>
+                        <p class="description" style="margin-top: 8px;">
+                            🧪 <?php _e('When enabled, all products cost $0 for admin users. Perfect for testing the full checkout and stamp collection flow.', 'iburger-passport'); ?>
+                        </p>
+                        <?php if ($test_mode): ?>
+                        <div class="notice notice-warning inline" style="margin-top: 15px; padding: 12px;">
+                            <strong><?php _e('⚠️ Remember to disable this before going live!', 'iburger-passport'); ?></strong>
+                        </div>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            </table>
+        </div>
         
         <div class="settings-section">
             <h2><?php _e('How It Works', 'iburger-passport'); ?></h2>

@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.5.2
+ * Version: 1.6.0
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.5.2');
+define('IBURGER_PASSPORT_VERSION', '1.6.0');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -92,6 +92,13 @@ class IBurger_Passport_Loyalty {
         // Add meta boxes
         add_action('add_meta_boxes', array($this, 'add_burger_country_meta_boxes'));
         add_action('save_post', array($this, 'save_burger_country_meta'));
+        
+        // Test Mode - Zero prices for admins
+        add_filter('woocommerce_product_get_price', array($this, 'test_mode_price'), 9999, 2);
+        add_filter('woocommerce_product_get_regular_price', array($this, 'test_mode_price'), 9999, 2);
+        add_filter('woocommerce_product_variation_get_price', array($this, 'test_mode_price'), 9999, 2);
+        add_filter('woocommerce_product_variation_get_regular_price', array($this, 'test_mode_price'), 9999, 2);
+        add_action('wp_footer', array($this, 'test_mode_banner'));
     }
     
     public function init_updater() {
@@ -859,6 +866,66 @@ class IBurger_Passport_Loyalty {
         $headers = array('Content-Type: text/html; charset=UTF-8');
         
         wp_mail($user->user_email, $subject, $email_content, $headers);
+    }
+    
+    /**
+     * Test Mode: Set prices to 0 for admin users
+     */
+    public function test_mode_price($price, $product) {
+        // Only apply if test mode is enabled
+        if (!get_option('iburger_test_mode', 0)) {
+            return $price;
+        }
+        
+        // Only apply for admin users
+        if (!current_user_can('manage_options')) {
+            return $price;
+        }
+        
+        // Don't apply in admin area (so you can still edit products)
+        if (is_admin() && !wp_doing_ajax()) {
+            return $price;
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Test Mode: Show banner on frontend
+     */
+    public function test_mode_banner() {
+        // Only show if test mode is enabled and user is admin
+        if (!get_option('iburger_test_mode', 0) || !current_user_can('manage_options')) {
+            return;
+        }
+        
+        ?>
+        <div id="iburger-test-mode-banner" style="
+            position: fixed;
+            top: 32px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 999999;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        ">
+            🧪 TEST MODE ACTIVE - All prices are $0 for admin users. 
+            <a href="<?php echo admin_url('admin.php?page=iburger-passport-settings'); ?>" style="color: white; text-decoration: underline; margin-left: 10px;">Disable Test Mode</a>
+        </div>
+        <style>
+            body.admin-bar #iburger-test-mode-banner { top: 32px; }
+            body:not(.admin-bar) #iburger-test-mode-banner { top: 0; }
+            @media screen and (max-width: 782px) {
+                body.admin-bar #iburger-test-mode-banner { top: 46px; }
+            }
+        </style>
+        <?php
     }
     
     public static function get_user_stamps($user_id = null) {
