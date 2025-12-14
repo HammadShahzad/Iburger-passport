@@ -263,12 +263,17 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
             <div class="passport-page cover back-cover" data-page="back">
                 <div class="cover-content">
                     <div class="back-stamp">
-                        <div class="circular-text">
-                            <?php _e('BURGER WORLD PASSPORT • OFFICIAL DOCUMENT •', 'iburger-passport'); ?>
+                        <div class="back-stamp-inner">
+                            <span class="back-icon">🌍</span>
+                            <span class="back-text">OFFICIAL</span>
+                            <span class="back-text-sub">DOCUMENT</span>
                         </div>
                     </div>
                     <div class="thank-you">
                         <?php _e('Thank you for traveling the burger world with us!', 'iburger-passport'); ?>
+                    </div>
+                    <div class="brand-signature">
+                        <?php echo esc_html(get_bloginfo('name')); ?>
                     </div>
                 </div>
             </div>

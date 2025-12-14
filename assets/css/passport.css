@@ -1037,33 +1037,67 @@
 }
 
 .back-stamp {
-    width: 140px;
-    height: 140px;
-    border: 3px solid rgba(201, 162, 39, 0.3);
+    width: 160px;
+    height: 160px;
+    border: 3px solid var(--passport-accent);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 32px;
+    background: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.circular-text {
+.back-stamp-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.back-icon {
+    font-size: 3rem;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.back-text {
     font-family: 'Space Mono', monospace;
-    font-size: 0.45rem;
-    letter-spacing: 1px;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.4);
-    padding: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--passport-accent);
+    text-transform: uppercase;
+}
+
+.back-text-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
 }
 
 .thank-you {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     text-align: center;
-    color: rgba(255, 255, 255, 0.7);
-    max-width: 280px;
+    color: #FFF;
+    max-width: 300px;
     line-height: 1.6;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 40px;
+}
+
+.brand-signature {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: auto;
 }
 
 /* ============================================
