@@ -57,12 +57,18 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
             <div class="progress-fill" style="width: <?php echo $progress; ?>%;"></div>
         </div>
         <div class="progress-markers">
-            <?php for ($i = 1; $i <= $stamps_required; $i++): ?>
-                <div class="marker <?php echo $i <= $unique_count ? 'collected' : ''; ?>">
-                    <div class="marker-dot"><?php echo $i <= $unique_count ? '🍔' : $i; ?></div>
-                    <span class="marker-label"><?php echo $i <= $unique_count ? 'Done' : 'Next'; ?></span>
+            <?php 
+            foreach ($burger_countries as $country): 
+                $country_id = $country->ID;
+                $code = get_post_meta($country_id, '_country_code', true);
+                $flag = get_post_meta($country_id, '_flag_emoji', true);
+                $is_collected = isset($stamps_by_country[$country_id]);
+            ?>
+                <div class="marker <?php echo $is_collected ? 'collected' : ''; ?>">
+                    <div class="marker-dot"><?php echo $is_collected ? $flag : '○'; ?></div>
+                    <span class="marker-label"><?php echo esc_html($code); ?></span>
                 </div>
-            <?php endfor; ?>
+            <?php endforeach; ?>
         </div>
         <?php if ($progress >= 100 && $has_pending_reward): ?>
             <div class="reward-available">
