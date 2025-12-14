@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.7.0
+ * Version: 1.7.1
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.7.0');
+define('IBURGER_PASSPORT_VERSION', '1.7.1');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -853,46 +853,71 @@ class IBurger_Passport_Loyalty {
      * Send Stamp Added Email
      */
     public function send_stamp_added_email($user_id, $stamps_added) {
-        // Check if email is enabled (default to true/1)
-        $email_enabled = get_option('iburger_email_stamp_added', 1);
-        if (!$email_enabled) {
-            return;
-        }
-        
-        $user = get_user_by('id', $user_id);
-        if (!$user) return;
-        
-        $customer_name = $user->display_name ?: $user->user_login;
-        $total_collected = self::get_unique_country_count($user_id);
-        
-        $all_countries = get_posts(array(
-            'post_type' => 'burger_country',
-            'posts_per_page' => -1,
-            'post_status' => 'publish',
-            'fields' => 'ids'
-        ));
-        $total_countries = count($all_countries);
-        
-        $passport_url = wc_get_account_endpoint_url('burger-passport');
-        
-        ob_start();
-        include IBURGER_PASSPORT_PATH . 'includes/emails/stamp-added.php';
-        $email_content = ob_get_clean();
-        
-        $subject = sprintf(__('[%s] New Stamp Added to Your Passport! 🍔', 'iburger-passport'), get_bloginfo('name'));
-        
-        // Use WooCommerce mailer for better deliverability
-        $mailer = WC()->mailer();
-        $wrapped_content = $mailer->wrap_message($subject, $email_content);
-        $headers = array('Content-Type: text/html; charset=UTF-8');
-        
-        $result = wp_mail($user->user_email, $subject, $wrapped_content, $headers);
-        
-        // Log if email fails
-        if (!$result) {
-            error_log('iBurger Passport: Failed to send stamp added email to ' . $user->user_email);
-        } else {
-            self::log_activity('email_sent', $user_id, __('Stamp Added Email sent', 'iburger-passport'), 'system');
+        try {
+            // Check if email is enabled (default to true/1)
+            $email_enabled = get_option('iburger_email_stamp_added', 1);
+            if (!$email_enabled) {
+                error_log('iBurger Passport: Stamp email disabled in settings');
+                return;
+            }
+            
+            $user = get_user_by('id', $user_id);
+            if (!$user) {
+                error_log('iBurger Passport: User not found for email: ' . $user_id);
+                return;
+            }
+            
+            $customer_name = $user->display_name ?: $user->user_login;
+            $total_collected = self::get_unique_country_count($user_id);
+            
+            $all_countries = get_posts(array(
+                'post_type' => 'burger_country',
+                'posts_per_page' => -1,
+                'post_status' => 'publish',
+                'fields' => 'ids'
+            ));
+            $total_countries = count($all_countries);
+            
+            $passport_url = wc_get_account_endpoint_url('burger-passport');
+            
+            // Check if template exists
+            $template_path = IBURGER_PASSPORT_PATH . 'includes/emails/stamp-added.php';
+            if (!file_exists($template_path)) {
+                error_log('iBurger Passport: Email template not found: ' . $template_path);
+                return;
+            }
+            
+            ob_start();
+            include $template_path;
+            $email_content = ob_get_clean();
+            
+            if (empty($email_content)) {
+                error_log('iBurger Passport: Email content is empty');
+                return;
+            }
+            
+            $subject = sprintf('[%s] New Stamp Added to Your Passport!', get_bloginfo('name'));
+            
+            // Use WooCommerce mailer for better deliverability
+            if (function_exists('WC') && WC()->mailer()) {
+                $mailer = WC()->mailer();
+                $wrapped_content = $mailer->wrap_message($subject, $email_content);
+            } else {
+                $wrapped_content = $email_content;
+            }
+            
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+            
+            $result = wp_mail($user->user_email, $subject, $wrapped_content, $headers);
+            
+            // Log result
+            if (!$result) {
+                error_log('iBurger Passport: wp_mail failed for ' . $user->user_email);
+            } else {
+                self::log_activity('email_sent', $user_id, __('Stamp Added Email sent', 'iburger-passport'), 'system');
+            }
+        } catch (Exception $e) {
+            error_log('iBurger Passport Email Error: ' . $e->getMessage());
         }
     }
     

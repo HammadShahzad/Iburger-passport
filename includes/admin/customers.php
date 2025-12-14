@@ -133,8 +133,8 @@ if ($view_user_id) {
         
         <div class="stamps-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
             <?php foreach ($all_countries as $country): 
-                $flag = get_post_meta($country->ID, '_burger_country_flag', true);
-                $code = get_post_meta($country->ID, '_burger_country_code', true);
+                $flag = get_post_meta($country->ID, '_flag_emoji', true);
+                $code = get_post_meta($country->ID, '_country_code', true);
                 $has_stamp = in_array($country->ID, $manage_user_data['unique_country_ids']);
             ?>
             <div class="stamp-card" style="background: <?php echo $has_stamp ? '#dcfce7' : '#f5f5f5'; ?>; padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">

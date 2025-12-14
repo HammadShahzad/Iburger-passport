@@ -3,6 +3,52 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Handle test email
+if (isset($_GET['test_email']) && $_GET['test_email'] === '1' && current_user_can('manage_options')) {
+    $current_user = wp_get_current_user();
+    
+    // Create test stamp data
+    $stamps_added = array(
+        array(
+            'id' => 1,
+            'name' => 'Test Burger Country',
+            'code' => 'TEST',
+            'flag' => '🍔',
+        )
+    );
+    
+    $customer_name = $current_user->display_name;
+    $total_collected = 1;
+    $total_countries = 5;
+    $passport_url = wc_get_account_endpoint_url('burger-passport');
+    
+    $template_path = IBURGER_PASSPORT_PATH . 'includes/emails/stamp-added.php';
+    
+    if (file_exists($template_path)) {
+        ob_start();
+        include $template_path;
+        $email_content = ob_get_clean();
+        
+        $subject = sprintf('[%s] TEST - Stamp Added Email', get_bloginfo('name'));
+        
+        if (function_exists('WC') && WC()->mailer()) {
+            $mailer = WC()->mailer();
+            $email_content = $mailer->wrap_message($subject, $email_content);
+        }
+        
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+        $result = wp_mail($current_user->user_email, $subject, $email_content, $headers);
+        
+        if ($result) {
+            echo '<div class="notice notice-success"><p>✅ ' . sprintf(__('Test email sent to %s! Check your inbox (and spam folder).', 'iburger-passport'), $current_user->user_email) . '</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p>❌ ' . __('Failed to send test email. Check your WordPress email configuration.', 'iburger-passport') . '</p></div>';
+        }
+    } else {
+        echo '<div class="notice notice-error"><p>❌ ' . __('Email template file not found!', 'iburger-passport') . '</p></div>';
+    }
+}
+
 // Handle check for updates
 if (isset($_GET['check_updates']) && $_GET['check_updates'] === '1' && current_user_can('manage_options')) {
     // Clear update transients to force a fresh check
@@ -125,6 +171,14 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
         <div class="settings-section">
             <h2><?php _e('Email Notifications', 'iburger-passport'); ?></h2>
             <p class="description" style="margin-bottom: 20px;"><?php _e('Control which emails are sent to customers during their passport journey.', 'iburger-passport'); ?></p>
+            
+            <div style="background: #f0f9ff; border: 1px solid #0284c7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <strong>🧪 <?php _e('Test Email Delivery', 'iburger-passport'); ?></strong>
+                <p style="margin: 8px 0;"><?php _e('Send a test email to yourself to verify email is working:', 'iburger-passport'); ?></p>
+                <a href="?page=iburger-passport-settings&test_email=1" class="button button-secondary">
+                    📧 <?php printf(__('Send Test Email to %s', 'iburger-passport'), wp_get_current_user()->user_email); ?>
+                </a>
+            </div>
             
             <table class="form-table">
                 <tr>
