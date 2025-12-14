@@ -129,7 +129,8 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
                         </div>
                     </div>
                     
-                    <!-- Apple Wallet Button -->
+                    <!-- Apple Wallet Button (Disabled for now) -->
+                    <!-- 
                     <div class="passport-actions" style="margin-top: 20px;">
                         <a href="<?php echo esc_url(admin_url('admin-ajax.php?action=iburger_download_pass&nonce=' . wp_create_nonce('iburger_wallet_pass'))); ?>" class="apple-wallet-button" target="_blank">
                             <svg class="apple-logo" viewBox="0 0 512 512" width="20" height="20" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -137,7 +138,8 @@ $progress = min(100, round(($unique_count / $stamps_required) * 100));
                             </svg>
                             <span><?php _e('Add to Apple Wallet', 'iburger-passport'); ?></span>
                         </a>
-                    </div>
+                    </div> 
+                    -->
 
                     <div class="passport-stamp-decorative">
                         <div class="stamp-circle">

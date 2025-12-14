@@ -169,6 +169,8 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
             </table>
         </div>
         
+        <!-- Apple Wallet Configuration (Disabled for now) -->
+        <!-- 
         <div class="settings-section">
             <h2><?php _e('Apple Wallet Configuration', 'iburger-passport'); ?></h2>
             <div class="notice notice-info inline" style="margin: 0 0 20px 0; padding: 15px;">
@@ -181,7 +183,8 @@ $products = wc_get_products(array('limit' => -1, 'status' => 'publish'));
                 </ul>
                 <p style="margin-top: 10px;"><?php _e('Once you have these, contact your developer to enable the .pkpass generation.', 'iburger-passport'); ?></p>
             </div>
-        </div>
+        </div> 
+        -->
         
         <div class="settings-section">
             <h2><?php _e('How It Works', 'iburger-passport'); ?></h2>
