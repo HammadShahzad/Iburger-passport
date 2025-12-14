@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.6.1
+ * Version: 1.6.2
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.6.1');
+define('IBURGER_PASSPORT_VERSION', '1.6.2');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -792,7 +792,9 @@ class IBurger_Passport_Loyalty {
      * Send Stamp Added Email
      */
     public function send_stamp_added_email($user_id, $stamps_added) {
-        if (!get_option('iburger_email_stamp_added', true)) {
+        // Check if email is enabled (default to true/1)
+        $email_enabled = get_option('iburger_email_stamp_added', 1);
+        if (!$email_enabled) {
             return;
         }
         
@@ -818,16 +820,25 @@ class IBurger_Passport_Loyalty {
         
         $subject = sprintf(__('[%s] New Stamp Added to Your Passport! 🍔', 'iburger-passport'), get_bloginfo('name'));
         
+        // Use WooCommerce mailer for better deliverability
+        $mailer = WC()->mailer();
+        $wrapped_content = $mailer->wrap_message($subject, $email_content);
         $headers = array('Content-Type: text/html; charset=UTF-8');
         
-        wp_mail($user->user_email, $subject, $email_content, $headers);
+        $result = wp_mail($user->user_email, $subject, $wrapped_content, $headers);
+        
+        // Log if email fails
+        if (!$result) {
+            error_log('iBurger Passport: Failed to send stamp added email to ' . $user->user_email);
+        }
     }
     
     /**
      * Send Reward Unlocked Email
      */
     public function send_reward_unlocked_email($user_id) {
-        if (!get_option('iburger_email_reward_unlocked', true)) {
+        $email_enabled = get_option('iburger_email_reward_unlocked', 1);
+        if (!$email_enabled) {
             return;
         }
         
@@ -852,16 +863,24 @@ class IBurger_Passport_Loyalty {
         
         $subject = sprintf(__('[%s] 🎉 Congratulations! You Unlocked a Reward!', 'iburger-passport'), get_bloginfo('name'));
         
+        // Use WooCommerce mailer for better deliverability
+        $mailer = WC()->mailer();
+        $wrapped_content = $mailer->wrap_message($subject, $email_content);
         $headers = array('Content-Type: text/html; charset=UTF-8');
         
-        wp_mail($user->user_email, $subject, $email_content, $headers);
+        $result = wp_mail($user->user_email, $subject, $wrapped_content, $headers);
+        
+        if (!$result) {
+            error_log('iBurger Passport: Failed to send reward unlocked email to ' . $user->user_email);
+        }
     }
     
     /**
      * Send Coupon Issued Email
      */
     public function send_coupon_issued_email($user_id, $coupon_code, $product_name, $expires_date) {
-        if (!get_option('iburger_email_coupon_issued', true)) {
+        $email_enabled = get_option('iburger_email_coupon_issued', 1);
+        if (!$email_enabled) {
             return;
         }
         
@@ -877,9 +896,16 @@ class IBurger_Passport_Loyalty {
         
         $subject = sprintf(__('[%s] 🎁 Your FREE Reward Coupon is Ready!', 'iburger-passport'), get_bloginfo('name'));
         
+        // Use WooCommerce mailer for better deliverability
+        $mailer = WC()->mailer();
+        $wrapped_content = $mailer->wrap_message($subject, $email_content);
         $headers = array('Content-Type: text/html; charset=UTF-8');
         
-        wp_mail($user->user_email, $subject, $email_content, $headers);
+        $result = wp_mail($user->user_email, $subject, $wrapped_content, $headers);
+        
+        if (!$result) {
+            error_log('iBurger Passport: Failed to send coupon issued email to ' . $user->user_email);
+        }
     }
     
     /**
