@@ -1669,18 +1669,38 @@
     }
 }
 
-.add-to-wallet-btn {
-    display: inline-block;
-    transition: transform 0.2s ease;
+/* ============================================
+   Apple Wallet Button
+   ============================================ */
+.apple-wallet-button {
+    background: #000;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    border: 1px solid #333;
+    line-height: 1; /* Fix vertical alignment */
 }
 
-.add-to-wallet-btn:hover {
-    transform: scale(1.05);
+.apple-wallet-button:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+    color: white;
+    text-decoration: none;
 }
 
-.add-to-wallet-btn img {
-    height: 40px;
-    width: auto;
+.apple-wallet-button svg.apple-logo {
+    display: block;
+    width: 18px;
+    height: 18px;
+    fill: white;
 }
 
 /* ============================================
