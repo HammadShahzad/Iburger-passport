@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.6.2
+ * Version: 1.7.0
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.6.2');
+define('IBURGER_PASSPORT_VERSION', '1.7.0');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -70,6 +70,10 @@ class IBurger_Passport_Loyalty {
         add_action('wp_ajax_iburger_verify_order', array($this, 'ajax_verify_order'));
         add_action('wp_ajax_iburger_claim_reward', array($this, 'ajax_claim_reward'));
         add_action('wp_ajax_iburger_download_pass', array($this, 'ajax_download_pass'));
+        
+        // Admin AJAX for manual stamps
+        add_action('wp_ajax_iburger_admin_add_stamp', array($this, 'ajax_admin_add_stamp'));
+        add_action('wp_ajax_iburger_admin_remove_stamp', array($this, 'ajax_admin_remove_stamp'));
         
         // WooCommerce hooks
         add_action('woocommerce_order_status_completed', array($this, 'process_completed_order'));
@@ -351,6 +355,15 @@ class IBurger_Passport_Loyalty {
             'iburger-passport-customers',
             array($this, 'render_customers_page')
         );
+        
+        add_submenu_page(
+            'iburger-passport',
+            __('Activity Log', 'iburger-passport'),
+            __('Activity Log', 'iburger-passport'),
+            'manage_options',
+            'iburger-passport-logs',
+            array($this, 'render_logs_page')
+        );
     }
     
     public function render_admin_page() {
@@ -363,6 +376,32 @@ class IBurger_Passport_Loyalty {
     
     public function render_customers_page() {
         include IBURGER_PASSPORT_PATH . 'includes/admin/customers.php';
+    }
+    
+    public function render_logs_page() {
+        include IBURGER_PASSPORT_PATH . 'includes/admin/activity-log.php';
+    }
+    
+    /**
+     * Log activity
+     */
+    public static function log_activity($type, $user_id, $details, $source = 'customer') {
+        $logs = get_option('iburger_activity_log', array());
+        
+        $logs[] = array(
+            'type' => $type,
+            'user_id' => $user_id,
+            'details' => $details,
+            'source' => $source,
+            'date' => current_time('mysql'),
+        );
+        
+        // Keep only last 1000 entries
+        if (count($logs) > 1000) {
+            $logs = array_slice($logs, -1000);
+        }
+        
+        update_option('iburger_activity_log', $logs);
     }
     
     public function enqueue_frontend_assets() {
@@ -517,16 +556,25 @@ class IBurger_Passport_Loyalty {
         if (!is_array($stamps)) return;
         
         $initial_count = count($stamps);
+        $removed_count = 0;
         
         // Filter out stamps from this order
-        $stamps = array_filter($stamps, function($stamp) use ($order_id) {
-            return !isset($stamp['order_id']) || $stamp['order_id'] != $order_id;
+        $stamps = array_filter($stamps, function($stamp) use ($order_id, &$removed_count) {
+            if (isset($stamp['order_id']) && $stamp['order_id'] == $order_id) {
+                $removed_count++;
+                return false;
+            }
+            return true;
         });
         
         if (count($stamps) < $initial_count) {
             // Re-index array
             $stamps = array_values($stamps);
             update_user_meta($user_id, '_iburger_stamps', $stamps);
+            
+            // Log removal
+            $details = sprintf(__('Removed %d stamp(s) from Order #%s (Refund/Cancel)', 'iburger-passport'), $removed_count, $order_id);
+            self::log_activity('stamp_removed', $user_id, $details, 'system');
             
             // Remove from claimed list
             $claimed_orders = get_user_meta($user_id, '_iburger_claimed_orders', true);
@@ -540,12 +588,13 @@ class IBurger_Passport_Loyalty {
         }
     }
     
-    public function add_stamps_to_user($user_id, $country_ids, $order_id) {
+    public function add_stamps_to_user($user_id, $country_ids, $order_id, $source = 'customer') {
         $user_stamps = get_user_meta($user_id, '_iburger_stamps', true);
         if (!is_array($user_stamps)) {
             $user_stamps = array();
         }
         
+        $country_names = array();
         foreach ($country_ids as $country_id) {
             $stamp_data = array(
                 'country_id' => $country_id,
@@ -553,9 +602,18 @@ class IBurger_Passport_Loyalty {
                 'date' => current_time('mysql'),
             );
             $user_stamps[] = $stamp_data;
+            
+            $country = get_post($country_id);
+            if ($country) {
+                $country_names[] = $country->post_title;
+            }
         }
         
         update_user_meta($user_id, '_iburger_stamps', $user_stamps);
+        
+        // Log activity
+        $details = sprintf(__('Added stamps: %s (Order #%s)', 'iburger-passport'), implode(', ', $country_names), $order_id);
+        self::log_activity('stamp_added', $user_id, $details, $source);
         
         // Check if user qualifies for reward
         $this->check_reward_eligibility($user_id);
@@ -750,6 +808,9 @@ class IBurger_Passport_Loyalty {
         $product_name = $product ? $product->get_name() : __('Free Product', 'iburger-passport');
         $expires_formatted = date('F j, Y', strtotime('+30 days'));
         
+        // Log reward claim
+        self::log_activity('reward_claimed', $user_id, sprintf(__('Claimed reward: %s (Coupon: %s)', 'iburger-passport'), $product_name, $coupon_code), 'customer');
+        
         // Send coupon issued email
         $this->send_coupon_issued_email($user_id, $coupon_code, $product_name, $expires_formatted);
         
@@ -830,6 +891,8 @@ class IBurger_Passport_Loyalty {
         // Log if email fails
         if (!$result) {
             error_log('iBurger Passport: Failed to send stamp added email to ' . $user->user_email);
+        } else {
+            self::log_activity('email_sent', $user_id, __('Stamp Added Email sent', 'iburger-passport'), 'system');
         }
     }
     
@@ -872,6 +935,8 @@ class IBurger_Passport_Loyalty {
         
         if (!$result) {
             error_log('iBurger Passport: Failed to send reward unlocked email to ' . $user->user_email);
+        } else {
+            self::log_activity('email_sent', $user_id, __('Reward Unlocked Email sent', 'iburger-passport'), 'system');
         }
     }
     
@@ -905,6 +970,8 @@ class IBurger_Passport_Loyalty {
         
         if (!$result) {
             error_log('iBurger Passport: Failed to send coupon issued email to ' . $user->user_email);
+        } else {
+            self::log_activity('email_sent', $user_id, sprintf(__('Coupon Email sent (Code: %s)', 'iburger-passport'), $coupon_code), 'system');
         }
     }
     
@@ -1068,6 +1135,75 @@ class IBurger_Passport_Loyalty {
         
         $stamps = get_user_meta($user_id, '_iburger_stamps', true);
         return is_array($stamps) ? $stamps : array();
+    }
+    
+    /**
+     * Admin AJAX: Add stamp to user
+     */
+    public function ajax_admin_add_stamp() {
+        check_ajax_referer('iburger_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Unauthorized', 'iburger-passport')));
+        }
+        
+        $user_id = intval($_POST['user_id']);
+        $country_id = intval($_POST['country_id']);
+        
+        if (!$user_id || !$country_id) {
+            wp_send_json_error(array('message' => __('Invalid data', 'iburger-passport')));
+        }
+        
+        // Add stamp
+        $this->add_stamps_to_user($user_id, array($country_id), 0, 'admin');
+        
+        wp_send_json_success(array('message' => __('Stamp added successfully!', 'iburger-passport')));
+    }
+    
+    /**
+     * Admin AJAX: Remove stamp from user
+     */
+    public function ajax_admin_remove_stamp() {
+        check_ajax_referer('iburger_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Unauthorized', 'iburger-passport')));
+        }
+        
+        $user_id = intval($_POST['user_id']);
+        $country_id = intval($_POST['country_id']);
+        
+        if (!$user_id || !$country_id) {
+            wp_send_json_error(array('message' => __('Invalid data', 'iburger-passport')));
+        }
+        
+        $stamps = get_user_meta($user_id, '_iburger_stamps', true);
+        if (!is_array($stamps)) {
+            wp_send_json_error(array('message' => __('No stamps found', 'iburger-passport')));
+        }
+        
+        // Find and remove the first stamp of this country
+        $found = false;
+        foreach ($stamps as $key => $stamp) {
+            if ($stamp['country_id'] == $country_id) {
+                unset($stamps[$key]);
+                $found = true;
+                break;
+            }
+        }
+        
+        if (!$found) {
+            wp_send_json_error(array('message' => __('Stamp not found', 'iburger-passport')));
+        }
+        
+        $stamps = array_values($stamps);
+        update_user_meta($user_id, '_iburger_stamps', $stamps);
+        
+        $country = get_post($country_id);
+        $details = sprintf(__('Removed stamp: %s (Admin action)', 'iburger-passport'), $country ? $country->post_title : 'Unknown');
+        self::log_activity('stamp_removed', $user_id, $details, 'admin');
+        
+        wp_send_json_success(array('message' => __('Stamp removed successfully!', 'iburger-passport')));
     }
     
     public static function get_unique_country_count($user_id = null) {
