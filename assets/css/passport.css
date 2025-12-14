@@ -318,6 +318,10 @@
     z-index: 10;
 }
 
+.passport-page.hidden {
+    display: none !important;
+}
+
 .passport-page.flip-out-left {
     opacity: 0;
     transform: translateX(-50px) scale(0.95) rotateY(-10deg);
