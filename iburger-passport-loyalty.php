@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.4.6
+ * Version: 1.5.0
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.4.6');
+define('IBURGER_PASSPORT_VERSION', '1.5.0');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -61,6 +61,10 @@ class IBurger_Passport_Loyalty {
         
         // Admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
+
+        // Admin Columns for Burger Countries
+        add_filter('manage_burger_country_posts_columns', array($this, 'add_country_columns'));
+        add_action('manage_burger_country_posts_custom_column', array($this, 'render_country_columns'), 10, 2);
         
         // AJAX handlers
         add_action('wp_ajax_iburger_verify_order', array($this, 'ajax_verify_order'));
@@ -255,6 +259,43 @@ class IBurger_Passport_Loyalty {
             delete_post_meta($post_id, '_linked_products');
         }
     }
+
+    public function add_country_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb'] = $columns['cb'];
+        $new_columns['title'] = $columns['title'];
+        $new_columns['flag'] = __('Flag', 'iburger-passport');
+        $new_columns['code'] = __('Code', 'iburger-passport');
+        $new_columns['products'] = __('Linked Products', 'iburger-passport');
+        $new_columns['date'] = $columns['date'];
+        return $new_columns;
+    }
+
+    public function render_country_columns($column, $post_id) {
+        switch ($column) {
+            case 'flag':
+                echo '<span style="font-size: 24px;">' . get_post_meta($post_id, '_flag_emoji', true) . '</span>';
+                break;
+            case 'code':
+                echo '<strong>' . esc_html(get_post_meta($post_id, '_country_code', true)) . '</strong>';
+                break;
+            case 'products':
+                $product_ids = get_post_meta($post_id, '_linked_products', true);
+                if (!empty($product_ids) && is_array($product_ids)) {
+                    $names = array();
+                    foreach ($product_ids as $pid) {
+                        $product = wc_get_product($pid);
+                        if ($product) {
+                            $names[] = '<a href="' . get_edit_post_link($pid) . '">' . $product->get_name() . '</a>';
+                        }
+                    }
+                    echo implode(', ', $names);
+                } else {
+                    echo '<span style="color: #999;">—</span>';
+                }
+                break;
+        }
+    }
     
     public function add_admin_menu() {
         add_menu_page(
@@ -299,6 +340,15 @@ class IBurger_Passport_Loyalty {
     }
     
     public function enqueue_frontend_assets() {
+        global $post;
+        $is_endpoint = function_exists('is_wc_endpoint_url') && is_wc_endpoint_url('burger-passport');
+        $has_shortcode = is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'iburger_passport');
+        
+        // Only load assets on passport pages
+        if (!$is_endpoint && !$has_shortcode) {
+            return;
+        }
+
         wp_enqueue_style(
             'iburger-passport-style',
             IBURGER_PASSPORT_URL . 'assets/css/passport.css',
