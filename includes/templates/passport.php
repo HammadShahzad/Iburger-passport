@@ -43,7 +43,7 @@ foreach ($stamps as $stamp) {
 $countries_per_page = 4;
 $pages = array_chunk($burger_countries, $countries_per_page);
 
-$progress = min(100, round(($unique_count / $stamps_required) * 100));
+$progress = $stamps_required > 0 ? min(100, round(($unique_count / $stamps_required) * 100)) : 0;
 ?>
 
 <div class="iburger-passport-wrapper">

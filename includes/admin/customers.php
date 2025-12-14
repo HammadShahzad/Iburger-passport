@@ -37,7 +37,7 @@ foreach ($users as $user) {
         'unique_countries' => count($unique_countries),
         'rewards_claimed' => $rewards_count,
         'has_pending' => $has_pending,
-        'progress' => min(100, round((count($unique_countries) / $stamps_required) * 100)),
+        'progress' => $stamps_required > 0 ? min(100, round((count($unique_countries) / $stamps_required) * 100)) : 0,
     );
 }
 
