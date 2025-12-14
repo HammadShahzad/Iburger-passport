@@ -17,9 +17,9 @@ if (isset($_GET['check_updates']) && $_GET['check_updates'] === '1' && current_u
 // Handle form submission
 if (isset($_POST['iburger_save_settings']) && wp_verify_nonce($_POST['iburger_settings_nonce'], 'iburger_save_settings')) {
     update_option('iburger_reward_product', intval($_POST['reward_product']));
-    update_option('iburger_passport_title', sanitize_text_field($_POST['passport_title']));
-    update_option('iburger_passport_subtitle', sanitize_text_field($_POST['passport_subtitle']));
-    update_option('iburger_reward_message', sanitize_textarea_field($_POST['reward_message']));
+    update_option('iburger_passport_title', sanitize_text_field(wp_unslash($_POST['passport_title'])));
+    update_option('iburger_passport_subtitle', sanitize_text_field(wp_unslash($_POST['passport_subtitle'])));
+    update_option('iburger_reward_message', sanitize_textarea_field(wp_unslash($_POST['reward_message'])));
     
     // Email settings
     update_option('iburger_email_stamp_added', isset($_POST['email_stamp_added']) ? 1 : 0);
