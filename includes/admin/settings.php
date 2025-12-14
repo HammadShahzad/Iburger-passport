@@ -16,7 +16,6 @@ if (isset($_GET['check_updates']) && $_GET['check_updates'] === '1' && current_u
 
 // Handle form submission
 if (isset($_POST['iburger_save_settings']) && wp_verify_nonce($_POST['iburger_settings_nonce'], 'iburger_save_settings')) {
-    update_option('iburger_stamps_required', intval($_POST['stamps_required']));
     update_option('iburger_reward_product', intval($_POST['reward_product']));
     update_option('iburger_passport_title', sanitize_text_field($_POST['passport_title']));
     update_option('iburger_passport_subtitle', sanitize_text_field($_POST['passport_subtitle']));
@@ -30,7 +29,6 @@ if (isset($_POST['iburger_save_settings']) && wp_verify_nonce($_POST['iburger_se
     echo '<div class="notice notice-success"><p>' . __('Settings saved successfully!', 'iburger-passport') . '</p></div>';
 }
 
-$stamps_required = get_option('iburger_stamps_required', 6);
 $reward_product_id = get_option('iburger_reward_product', 0);
 $passport_title = get_option('iburger_passport_title', 'Burger World Passport');
 $passport_subtitle = get_option('iburger_passport_subtitle', 'Collect stamps from around the world!');

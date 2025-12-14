@@ -8,6 +8,8 @@ A creative WordPress/WooCommerce loyalty plugin where customers collect burger s
 - **📬 Country-Based Stamps** - Create different burger countries (American, Mexican, Italian, etc.)
 - **🔗 Product Linking** - Link WooCommerce products to specific burger countries
 - **✅ Automatic Stamp Collection** - Stamps are automatically added when orders complete
+- **📧 Email Notifications** - Automated emails for stamps added, rewards unlocked, and coupons issued
+- **🍏 Apple Wallet Support** - Add loyalty card to Apple Wallet (requires certificates)
 - **🔢 Manual Order Verification** - Customers can manually add orders to claim stamps
 - **🎁 Free Product Rewards** - After collecting X unique stamps, customers get a free product
 - **📱 Mobile Responsive** - Works beautifully on all devices

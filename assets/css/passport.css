@@ -12,6 +12,14 @@
     --passport-accent: #C9A227;      /* Gold for Passport elements */
     --passport-bg: #F5F7F5;          /* Light clean background */
     --passport-text: #1a1a1a;
+
+    /* Supporting Colors (used in stamp variants, coupons, etc.) */
+    --passport-ember: #E85D04;
+    --passport-ocean: #1D3557;
+    --passport-forest: #2D6A4F;
+    --passport-plum: #7B2D8E;
+    --passport-gold: #C9A227;
+    --passport-navy: #0D1B2A;
     
     /* Passport Book Colors */
     --passport-cover: #004d00;       /* Dark Green Cover */

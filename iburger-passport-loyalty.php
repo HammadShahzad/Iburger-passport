@@ -3,7 +3,7 @@
  * Plugin Name: iBurger Passport Loyalty
  * Plugin URI: https://github.com/HammadShahzad/Iburger-passport
  * Description: A creative loyalty program where customers collect burger stamps from different countries on their digital passport. Earn rewards after collecting stamps!
- * Version: 1.4.0
+ * Version: 1.4.1
  * Author: Hammad Shahzad
  * Author URI: https://github.com/HammadShahzad
  * Text Domain: iburger-passport
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('IBURGER_PASSPORT_VERSION', '1.4.0');
+define('IBURGER_PASSPORT_VERSION', '1.4.1');
 define('IBURGER_PASSPORT_PATH', plugin_dir_path(__FILE__));
 define('IBURGER_PASSPORT_URL', plugin_dir_url(__FILE__));
 
@@ -656,7 +656,7 @@ class IBurger_Passport_Loyalty {
         // For now, we redirect to a "Coming Soon" or instructions page, or output a simple text file.
         
         $user = wp_get_current_user();
-        $stamps = $this->get_unique_country_count($user->ID);
+        $stamps = self::get_unique_country_count($user->ID);
         
         header('Content-Type: text/plain');
         header('Content-Disposition: attachment; filename="passport-info.txt"');
@@ -682,7 +682,7 @@ class IBurger_Passport_Loyalty {
         if (!$user) return;
         
         $customer_name = $user->display_name ?: $user->user_login;
-        $total_collected = $this->get_unique_country_count($user_id);
+        $total_collected = self::get_unique_country_count($user_id);
         
         $all_countries = get_posts(array(
             'post_type' => 'burger_country',
